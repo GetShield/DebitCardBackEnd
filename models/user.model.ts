@@ -4,9 +4,9 @@ const Schema = mongoose.Schema;
 
 const User = new Schema(
   {
-    user_name: { type: String },
-    email: { type: String },
-    password: { type: String },
+    user_name: { type: String, required: true },
+    email: { type: String, required: true },
+    password: { type: String, required: true },
     btc_wallet: { type: String },
     ether_wallet: { type: String },
     tron_wallet: { type: String },
