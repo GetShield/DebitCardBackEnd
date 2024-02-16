@@ -1,9 +1,12 @@
 const Wallet = require('../models/wallet.model')
 const config = require('../config')
 
-const { validate } = require('bitcoin-address-validation');
+const { validate } = require('bitcoin-address-validation')
 const TronWeb = require('tronweb')
 const { ethers } = require('ethers')
+
+const CoinMarketCap = require('coinmarketcap-api')
+const client = new CoinMarketCap(config.CMC_API_KEY)
 
 exports.getWalletByAddress = async function (req, res) {
     if (req.params.address === undefined) {
@@ -73,6 +76,20 @@ exports.updateBalanceByAddress = async function (req, res) {
         const result = await Wallet.findOne({ address: wallet.address });
 
         res.send({ wallet: result });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+}
+
+exports.getTokenPrice = async function (req, res) {
+    try {
+        const quotes = await client.getQuotes({symbol: config.TOKENS});
+
+        const priceArr = config.TOKENS.map((tokenName, index) => {
+            const price = quotes.data[tokenName].quote.USD.price;
+            return { name: tokenName, price: price };
+        })
+        res.send({ data: priceArr });    
     } catch (err) {
         res.status(500).send({ message: err.message });
     }
