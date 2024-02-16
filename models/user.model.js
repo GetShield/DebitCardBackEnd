@@ -4,10 +4,12 @@ const Schema = mongoose.Schema
 
 const User = new Schema(
     {
-        userName: { type: String },
+        user_name: { type: String },
         email: { type: String },
         password: { type: String },
-        wallet: { type: String }
+        btc_wallet: { type: String },
+        ether_wallet: { type: String },
+        tron_wallet: { type: String }
     },
     {
         collection: "users"

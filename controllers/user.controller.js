@@ -26,16 +26,18 @@ exports.getUserById = async function(req, res) {
 }
 
 exports.createUser = async function(req, res) {
-    if (req.body === undefined || req.body.userName === undefined || !req.body.userName) {
+    if (req.body === undefined || req.body.user_name === undefined || !req.body.user_name) {
         res.status(400).send({ message: "User name can not be empty!" });
         return;
     }
 
     const user = new User({
-        userName: req.body.userName,
+        user_name: req.body.user_name,
         email: req.body.email,
         password: req.body.password,
-        wallet: req.body.wallet
+        btc_wallet: req.body.btc_wallet,
+        ether_wallet: req.body.ether_wallet,
+        tron_wallet: req.body.tron_wallet
     })
 
     try {
