@@ -2,6 +2,7 @@ const logger = require('node-color-log');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+require('dotenv').config();
 
 const config = require('./config');
 const database = require('./database');
