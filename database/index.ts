@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
-const logger = require('node-color-log');
+import mongoose from 'mongoose';
+import logger from 'node-color-log';
 
-const config = require('../config');
+import config from '../config';
 
-exports.init = function () {
+export const init = function () {
   mongoose
     .connect(config.MONGOURI)
     .then(() => {

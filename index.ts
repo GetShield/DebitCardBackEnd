@@ -8,6 +8,8 @@ const config = require('./config');
 const database = require('./database');
 const router = require('./routes');
 
+import { fetchEthereumEvents } from "./agent";
+
 const app = express();
 
 app.use(cors());
@@ -18,6 +20,8 @@ const server = require('http').createServer(app);
 server.listen(config.PORT);
 server.on('error', onError);
 server.on('listening', onListening);
+
+fetchEthereumEvents();
 
 // TODO: Error type
 function onError(error: any) {
