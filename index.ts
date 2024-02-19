@@ -2,6 +2,7 @@ const logger = require('node-color-log');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const Airtable = require('airtable');
 require('dotenv').config();
 
 const config = require('./config');
@@ -9,7 +10,6 @@ const database = require('./database');
 const router = require('./routes');
 
 const app = express();
-
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -19,7 +19,11 @@ server.listen(config.PORT);
 server.on('error', onError);
 server.on('listening', onListening);
 
-// TODO: Error type
+const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+  process.env.AIRTABLE_BASE_ID
+);
+export const baseDebitCards = base('Debit Cards');
+
 function onError(error: any) {
   if (error.syscall != 'listen') {
     throw error;
