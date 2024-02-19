@@ -2,6 +2,7 @@ const logger = require('node-color-log');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const Airtable = require('airtable');
 require('dotenv').config();
 
 const config = require('./config');
@@ -11,7 +12,6 @@ const router = require('./routes');
 import { fetchEthereumEvents } from "./agent";
 
 const app = express();
-
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -23,7 +23,11 @@ server.on('listening', onListening);
 
 fetchEthereumEvents();
 
-// TODO: Error type
+const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+  process.env.AIRTABLE_BASE_ID
+);
+export const baseDebitCards = base('Debit Cards');
+
 function onError(error: any) {
   if (error.syscall != 'listen') {
     throw error;

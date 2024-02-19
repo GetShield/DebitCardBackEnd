@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { User } from '../types';
+import { DebitCardService } from '../services/debit-cards.service';
 const UserModel = require('../models/user.model');
 
 const jwt = require('jsonwebtoken');
@@ -15,13 +16,15 @@ exports.login = async function (req: Request, res: Response) {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      res.status(401).send({ message: 'Invalid credentials.' });
+      res.status(401).send({ error: 'Invalid credentials.' });
       return;
     }
 
     const token = jwt.sign({ id: user._id }, secretKey, { expiresIn: '1h' });
 
     const response = {
+      _id: user._id,
+      user_name: user.user_name,
       email: user.email,
       token,
     };
@@ -30,7 +33,7 @@ exports.login = async function (req: Request, res: Response) {
   } catch (error) {
     console.error(error);
     if (error instanceof Error) {
-      return res.status(500).send({ message: error.message });
+      return res.status(500).send({ error: error.message });
     }
   }
 };
@@ -42,7 +45,7 @@ exports.register = async function (req: Request, res: Response) {
     const alreadyExists = await UserModel.findOne({ email: email });
 
     if (alreadyExists) {
-      res.status(409).send({ message: 'Email already taken.' });
+      res.status(409).send({ error: 'Email already taken.' });
       return;
     }
 
@@ -57,17 +60,27 @@ exports.register = async function (req: Request, res: Response) {
       ether_wallet: '',
       tron_wallet: '',
     };
-
     const user = new UserModel(newUser);
     await user.save();
 
+    const cardRes = await DebitCardService.create({
+      userId: user._id,
+      userName: user_name,
+      userEmail: email,
+      cardNumber: '',
+    });
+    if (cardRes.result === 'error') {
+      res.status(500).send({ error: cardRes.error });
+      return;
+    }
+
     const token = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
 
-    res.json({ user_name, email, token });
+    res.json({ _id: user._id, user_name, email, token });
   } catch (error) {
     console.error(error);
     if (error instanceof Error) {
-      res.status(500).send({ message: error.message });
+      res.status(500).send({ error: error.message });
     }
   }
 };

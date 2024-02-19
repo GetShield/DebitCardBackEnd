@@ -10,7 +10,6 @@ function authorize(req: Request, res: Response, next: NextFunction) {
       return res.status(401).json({ message: 'No token provided' });
     }
     const decode = jwt.verify(token, process.env.JWT_SECRET);
-    console.log({ decode });
     req.body.user = decode;
     next();
   } catch (error) {
