@@ -9,7 +9,7 @@ const config = require('./config');
 const database = require('./database');
 const router = require('./routes');
 
-import { fetchEthereumEvents } from "./agent";
+import { fetchEthereumEvents } from './agent';
 
 const app = express();
 app.use(cors());
@@ -21,7 +21,7 @@ server.listen(config.PORT);
 server.on('error', onError);
 server.on('listening', onListening);
 
-fetchEthereumEvents();
+// fetchEthereumEvents();
 
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
   process.env.AIRTABLE_BASE_ID

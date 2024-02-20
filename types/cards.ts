@@ -1,6 +1,6 @@
 export interface Card {
-  userId: string;
-  userName: string;
-  userEmail: string;
   cardNumber: string;
+  cardName: string;
+  cardExpiry: string;
+  cardCVV: string;
 }
