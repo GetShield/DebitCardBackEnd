@@ -6,6 +6,7 @@ export const MONGOURI = process.env.MONGO_URI || 'mongodb://localhost:27017';
 export const CMC_API_KEY = process.env.CMC_API_KEY || '';
 export const MORALIS_API_KEY = process.env.MORALIS_API_KEY || '';
 
+
 export const CHAIN_TYPE = {
   BTC: 'btc',
   ETH: 'eth',
@@ -33,24 +34,25 @@ export const TAGET_WALLET_ADDRESS = {
   nile: "TW7ZnpizoTh3HfKFUHMEDMim8M1LrWXueB"
 }
 
+
 export const TOKEN_MAP = {
   eth: [
     {
-      name: "USDT",
-      address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-      decimals: 6
+      name: 'USDT',
+      address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+      decimals: 6,
     },
     {
-      name: "USDC",
-      address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-      decimals: 6
-    }
+      name: 'USDC',
+      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      decimals: 6,
+    },
   ],
   tron: [
     {
-      name: "USDT",
-      address: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-      decimals: 6
+      name: 'USDT',
+      address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+      decimals: 6,
     },
     {
       name: "USDC",
@@ -98,5 +100,5 @@ export default {
   CHAIN_MAP,
   TOKEN_MAP,
   TOKENS,
-  TAGET_WALLET_ADDRESS
+  TAGET_WALLET_ADDRESS,
 };
