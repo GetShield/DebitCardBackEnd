@@ -18,4 +18,4 @@ const BalanceSchema: Schema = new Schema(
     }
 );
 
-export default mongoose.model<IBalance>('Balance', BalanceSchema);
+export default mongoose.model<IBalance>('balances', BalanceSchema);

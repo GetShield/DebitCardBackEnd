@@ -18,8 +18,8 @@ const TransactionSchema: Schema = new Schema(
         Balance: { type: Schema.Types.ObjectId, ref: 'Balance', required: true }
     },
     {
-        collection: 'Transactions',
+        collection: 'transactions',
     }
 );
 
-export default mongoose.model<ITransaction>('Transactions', TransactionSchema);
+export default mongoose.model<ITransaction>('transactions', TransactionSchema);
