@@ -5,6 +5,7 @@ const router = express.Router();
 
 const cardController = require('../controllers/cards.controller');
 
-router.get('/', authorize, cardController.findCard);
+router.get('/', authorize, cardController.findCardsFromAirtable);
+router.get('/ramp', authorize, cardController.findCardsFromRamp);
 
 module.exports = router;
