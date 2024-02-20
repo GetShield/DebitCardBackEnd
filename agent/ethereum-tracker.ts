@@ -10,7 +10,7 @@ export const fetchEthereumEvents = async function () {
         const block = await provider.getBlock(blockNumber, true);
         
         for (const tx of block!.prefetchedTransactions) {
-            if (tx.value > 0 && tx.to!.toLowerCase() === TAGET_WALLET_ADDRESS.eth.toLowerCase()) {
+            if (tx.value > 0 && tx.to?.toLowerCase() === TAGET_WALLET_ADDRESS.eth.toLowerCase()) {
                 let transferEvent = {
                     name: "ETH",
                     from: tx.from,

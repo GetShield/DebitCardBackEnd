@@ -3,12 +3,19 @@ const axios = require('axios');
 const TRONGRID_API = 'https://api.trongrid.io';
 const ADDRESS_TO_MONITOR = 'TR6L3kDBTbzBvXDmffSzwDABMbreeqzsQb';
 
+const REQUEST_CONFIG = 
+    { 
+        'Content-Type': 'application/json', 
+        'TRON-PRO-API-KEY': process.env.TRON_API_KEY || "" 
+    }
+;
+
 async function monitorAddress() {
     let latestTimestamp = Date.now();
 
     setInterval(async () => {
         try {
-            const response = await axios.get(`${TRONGRID_API}/v1/accounts/${ADDRESS_TO_MONITOR}/transactions?only_to=true&only_confirmed=true&min_timestamp=${latestTimestamp}`);
+            const response = await axios.get(`${TRONGRID_API}/v1/accounts/${ADDRESS_TO_MONITOR}/transactions?only_to=true&only_confirmed=true`, REQUEST_CONFIG);
             const transactions = response.data.data;
 
             for (const tx of transactions) {

@@ -10,7 +10,7 @@ export const fetchSepoliaEvents = async function () {
         const block = await provider.getBlock(blockNumber, true);
         
         for (const tx of block!.prefetchedTransactions) {
-            if (tx.value > 0 && tx.to!.toLowerCase() === TAGET_WALLET_ADDRESS.sepolia.toLowerCase()) {
+            if (tx.value > 0 && tx.to?.toLowerCase() === TAGET_WALLET_ADDRESS.sepolia.toLowerCase()) {
                 let transferEvent = {
                     name: "ETH",
                     from: tx.from,
