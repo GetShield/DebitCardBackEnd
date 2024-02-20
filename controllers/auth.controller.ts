@@ -13,6 +13,11 @@ exports.login = async function (req: Request, res: Response) {
 
     const user = await UserModel.findOne({ email: email });
 
+    if (!user) {
+      res.status(401).send({ error: 'Invalid credentials.' });
+      return;
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -49,6 +54,8 @@ exports.register = async function (req: Request, res: Response) {
       return;
     }
 
+    console.log({ email, password, user_name });
+
     const salt = bcrypt.genSaltSync(10);
     const hashed_password = bcrypt.hashSync(password, salt);
 
@@ -65,9 +72,15 @@ exports.register = async function (req: Request, res: Response) {
 
     const cardRes = await DebitCardService.create({
       userId: user._id,
+      rampUserId: '',
       userName: user_name,
       userEmail: email,
-      cardNumber: '',
+      card1: JSON.stringify({
+        cardNumber: '',
+        cardName: '',
+        cardExpiry: '',
+        cardCVV: '',
+      }),
     });
     if (cardRes.result === 'error') {
       res.status(500).send({ error: cardRes.error });
