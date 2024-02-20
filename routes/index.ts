@@ -19,7 +19,7 @@ exports.init = function (app: Application) {
   app.use('/api/cards', cardRoutes);
   //app.use('/api/blockchains', blockchainRoutes);
   app.use('/api/transactions', transactionsRoutes);
-  app.use('/api/transaction', transactionRoutes);
+  app.use('/api/blockchain-transactions', transactionRoutes);
   //app.use('/api/balances', balanceRoutes);
 
 };
