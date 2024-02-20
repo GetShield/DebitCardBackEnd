@@ -1,7 +1,10 @@
+import { config } from 'dotenv';
+config();
+
 export const PORT = 8080;
-export const MONGOURI = 'mongodb+srv://shield:rootroot@cluster0.kfkgxdg.mongodb.net/';
-export const CMC_API_KEY = '9144af3e-0f3a-4cbc-8511-9e6747dd34ab';
-export const MORALIS_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6ImM1MjYwMDYwLTA2NWUtNDBmNC04ODk0LTNkMmFmMWU1OWExYiIsIm9yZ0lkIjoiMzc3NzAwIiwidXNlcklkIjoiMzg4MTM4IiwidHlwZUlkIjoiNDNhZmVhYjUtZTljNy00ZTA2LWFmMDEtMjI3MmJhYzQ0YzQwIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MDgxOTk4MDQsImV4cCI6NDg2Mzk1OTgwNH0.ft8WYtBMJC6B1BtBGpZB_0tPiCKcpb2PYNbryHgCZmI'
+export const MONGOURI = process.env.MONGO_URI || 'mongodb://localhost:27017';
+export const CMC_API_KEY = process.env.CMC_API_KEY || '';
+export const MORALIS_API_KEY = process.env.MORALIS_API_KEY || '';
 
 export const CHAIN_TYPE = {
   BTC: 'btc',
@@ -12,15 +15,21 @@ export const CHAIN_TYPE = {
 export const CHAIN_MAP = {
   eth: {
     name: "Ethereum Mainnet",
-    websocket_url: "wss://eth-mainnet.g.alchemy.com/v2/scS7rThd70YD61xEU80rJAZnQArQ36Dw",
-    https_url: "https://eth-mainnet.g.alchemy.com/v2/scS7rThd70YD61xEU80rJAZnQArQ36Dw"
-  }
+    websocket_url: `wss://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_ETHEREUM}`,
+    https_url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_ETHEREUM}`,
+  }, 
+  sepolia: {
+    name: "Sepolia Testnet",
+    websocket_url: `wss:///eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_SEPOLIA}`,
+    https_url: `https:///eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_SEPOLIA}`,
+  },
 }
 
 export const TAGET_WALLET_ADDRESS = {
   btc: "32KjG6o7TFcYyvHWADpg1m4JoXU4P5QN1L",
   eth: "0x388C818CA8B9251b393131C08a736A67ccB19297", //"0x9e75e5185c7bd59f04147a28e3e663df674da2a0",
-  tron: "TWNxsGw1o4rnP4FExQSEXuYzLtXm3dMkRd"
+  tron: "TWNxsGw1o4rnP4FExQSEXuYzLtXm3dMkRd",
+  sepolia: "0x3A2cfA4ceCcB92FfeB6953Eec492612E79c119a3"
 }
 
 export const TOKEN_MAP = {
@@ -46,6 +55,14 @@ export const TOKEN_MAP = {
       name: "USDC",
       address: "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8",
       decimals: 6
+    }
+  ], 
+
+  sepolia: [
+    {
+      decimals: 18,
+      name: "USDT",
+      address: "0xB6434EE024892CBD8e3364048a259Ef779542475",
     }
   ]
 }
