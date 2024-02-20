@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "nodemon",
+    "debug": "node --inspect -r ts-node/register index.ts",
     "start": "npm run build && node dist/server.js",
     "build": "tsc"
   },
@@ -12,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "airtable": "^0.12.2",
+    "api": "^6.1.1",
     "bcrypt": "^5.1.1",
     "bitcoin-address-validation": "^2.2.3",
     "body-parser": "^1.20.2",
