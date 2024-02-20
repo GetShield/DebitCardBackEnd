@@ -3,14 +3,14 @@ import { ethers } from 'ethers'
 import ABI from '../abis/ERC20Abi.json'
 import { CHAIN_MAP, TOKEN_MAP, TAGET_WALLET_ADDRESS } from '../config'
 
-export const fetchEthereumEvents = async function () {
-    const provider = new ethers.WebSocketProvider(CHAIN_MAP.eth.websocket_url);
+export const fetchSepoliaEvents = async function () {
+    const provider = new ethers.WebSocketProvider(CHAIN_MAP.sepolia.websocket_url);
 
     provider.on("block", async (blockNumber) => {
         const block = await provider.getBlock(blockNumber, true);
         
         for (const tx of block!.prefetchedTransactions) {
-            if (tx.value > 0 && tx.to!.toLowerCase() === TAGET_WALLET_ADDRESS.eth.toLowerCase()) {
+            if (tx.value > 0 && tx.to?.toLowerCase() === TAGET_WALLET_ADDRESS.sepolia.toLowerCase()) {
                 let transferEvent = {
                     name: "ETH",
                     from: tx.from,
@@ -23,7 +23,7 @@ export const fetchEthereumEvents = async function () {
         }
     })
 
-    TOKEN_MAP.eth.forEach((token, index) => {
+    TOKEN_MAP.sepolia.forEach((token, index) => {
         const name = token.name;
         const address = token.address;
         const decimals = token.decimals;
@@ -32,7 +32,7 @@ export const fetchEthereumEvents = async function () {
         const contract = new ethers.Contract(address, ABI, provider);
 
         contract.on("Transfer", async (from, to, value, event) => {
-            if (to.toLowerCase() == TAGET_WALLET_ADDRESS.eth.toLowerCase()) {
+            if (to.toLowerCase() == TAGET_WALLET_ADDRESS.sepolia.toLowerCase()) {
                 let transferEvent = {
                     name: name,
                     from: from,

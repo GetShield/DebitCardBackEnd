@@ -1,17 +1,22 @@
-const mongoose = require('mongoose');
+import mongoose, { Schema, Document } from 'mongoose';
 
-const Schema = mongoose.Schema;
+interface IWallet extends Document {
+    date: Date;
+    amount: Number;
+    address: String;
+    user: Schema.Types.ObjectId;
+}
 
-const Wallet = new Schema(
-  {
-    address: { type: String },
-    chain_type: { type: String },
-    token_type: { type: String },
-    balance: { type: String },
-  },
-  {
-    collection: 'wallets',
-  }
+const WalletSchema: Schema = new Schema(
+    {
+        date: { type: Date, required: true },
+        amount: { type: Number, required: true },
+        address: { type: String, required: true, unique: true },
+        user: { type: Schema.Types.ObjectId, ref: 'User', required: true }
+    },
+    {
+        collection: 'wallets',
+    }
 );
 
-module.exports = mongoose.model('wallets', Wallet);
+export default mongoose.model<IWallet>('wallets', WalletSchema);

@@ -1,19 +1,20 @@
-const mongoose = require('mongoose');
+import mongoose, { Schema, Document } from 'mongoose';
 
-const Schema = mongoose.Schema;
+interface IUser extends Document {
+  user_name: String,
+  email: String,
+  password:  String
+}
 
-const User = new Schema(
+const User: Schema = new Schema(
   {
     user_name: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    btc_wallet: { type: String },
-    ether_wallet: { type: String },
-    tron_wallet: { type: String },
   },
   {
     collection: 'users',
   }
 );
 
-module.exports = mongoose.model('users', User);
+module.exports = mongoose.model<IUser>('users', User);
