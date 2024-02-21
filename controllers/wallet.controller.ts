@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 
-const Wallet = require('../models/wallet.model');
-const config = require('../config');
+import Wallet from '../models/wallet.model';
+import config from '../config';
 
-const { validate } = require('bitcoin-address-validation');
+import { validate } from 'bitcoin-address-validation';
 const TronWeb = require('tronweb');
-const { ethers } = require('ethers');
+import { ethers } from 'ethers';
 
 const CoinMarketCap = require('coinmarketcap-api');
 const client = new CoinMarketCap(config.CMC_API_KEY);
@@ -102,9 +102,12 @@ const UserController = {
         { balance: req.body.balance }
       );
 
-      const result = await Wallet.findOne({ address: wallet.address });
-
-      res.send({ wallet: result });
+      if (wallet) {
+        const result = await Wallet.findOne({ address: wallet.address });
+        res.send({ wallet: result });
+      } else {
+        res.status(404).send({ message: 'Wallet not found' });
+      }
     } catch (err) {
       if (err instanceof Error) {
         res.status(500).send({ message: err.message });

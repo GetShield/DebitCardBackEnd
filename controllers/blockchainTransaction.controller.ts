@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import Transaction from '../models/transaction.model';
+import Transaction from '../models/blockchainTransaction.model';
 const BlockchainTransactionController = {
 
 

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { User } from '../types';
 import { DebitCardService } from '../services/debit-cards.service';
-const UserModel = require('../models/user.model');
+import UserModel from '../models/user.model';
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');

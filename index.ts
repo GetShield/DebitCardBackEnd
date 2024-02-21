@@ -5,9 +5,9 @@ const cors = require('cors');
 const Airtable = require('airtable');
 require('dotenv').config();
 
-const config = require('./config');
-const database = require('./database');
-const router = require('./routes');
+import config from './config';
+import database from './database';
+import router from './routes';
 
 import { fetchEthereumEvents } from "./agent/ethereum-tracker";
 import { fetchSepoliaEvents } from "./agent/sepolia-tracker";

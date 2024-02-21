@@ -3,7 +3,7 @@ import authorize from '../middlewares/authorize';
 const express = require('express');
 const router = express.Router();
 
-const userController = require('../controllers/user.controller');
+import userController from '../controllers/user.controller';
 
 router.get('/', authorize, userController.allUsers);
 router.get('/:id', authorize, userController.getUserById);

@@ -12,7 +12,7 @@ import blockchainTransactionRoutes from './blockchain-transaction.route';
 //import balanceRoutes from './balance.route';
 
 
-exports.init = function (app: Application) {
+const init = function (app: Application) {
   app.use('/api/users', userRoutes);
   app.use('/api/wallets', walletRoutes);
   app.use('/api/auth', authRoutes);
@@ -23,3 +23,6 @@ exports.init = function (app: Application) {
   //app.use('/api/balances', balanceRoutes);
 
 };                                                              
+
+export default {init};
+

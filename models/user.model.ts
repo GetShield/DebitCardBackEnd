@@ -17,4 +17,4 @@ const User: Schema = new Schema(
   }
 );
 
-module.exports = mongoose.model<IUser>('users', User);
+export default mongoose.model<IUser>('users', User);
