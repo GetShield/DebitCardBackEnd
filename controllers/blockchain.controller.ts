@@ -6,7 +6,6 @@ const blockchainController = {
 
   async getAll (req: Request, res: Response) {
     
-
     try {
       const blockchains = await Blockchain.find();
 
