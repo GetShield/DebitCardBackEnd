@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 config();
 
-export const PORT = 8080;
+export const PORT = process.env.PORT || 8080;
 export const MONGOURI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
 export const CMC_API_KEY = process.env.CMC_API_KEY || '';
 export const MORALIS_API_KEY = process.env.MORALIS_API_KEY || '';
