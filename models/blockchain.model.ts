@@ -3,7 +3,9 @@ import mongoose, { Schema, Document } from 'mongoose';
 interface IBlockchain extends Document {
   name: String,
   chainId: Number,
-  native_symbol: String
+  native_symbol: String,
+  wallets: Array<Schema.Types.ObjectId>;
+  mainnet: Boolean;
 }
 
 const Blockchain = new Schema(
@@ -11,10 +13,12 @@ const Blockchain = new Schema(
     name: { type: String, required: true, unique: true },
     chainId: { type: Number, required: false },
     native_symbol: { type: String, required: true },
+    wallets: [{ type: Schema.Types.ObjectId, ref: 'wallets' }],
+    mainnet: { type: Boolean, required: true }
   },
   {
     collection: 'blockchains',
   }
 );
 
-module.exports = mongoose.model<IBlockchain>('blockchains', Blockchain);
+export default  mongoose.model<IBlockchain>('blockchains', Blockchain);

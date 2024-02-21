@@ -2,20 +2,26 @@ import { Request, Response } from 'express';
 
 import { TransactionsService } from '../services';
 
-exports.findTransactions = async function (req: Request, res: Response) {
-  try {
-    const userId = req.body.user.id;
+const TransactionsController = {
 
-    const transactions = await TransactionsService.find(userId);
+  async findTransactions (req: Request, res: Response) {
+    try {
+      const userId = req.body.user.id;
 
-    if (transactions.result === 'error') {
-      return res.status(500).send({ error: transactions.error });
-    }
-    res.send(transactions.data);
-  } catch (error) {
-    console.error(error);
-    if (error instanceof Error) {
-      return res.status(500).send({ error: error.message });
+      const transactions = await TransactionsService.find(userId);
+
+      if (transactions.result === 'error') {
+        return res.status(500).send({ error: transactions.error });
+      }
+      res.send(transactions.data);
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        return res.status(500).send({ error: error.message });
+      }
     }
   }
+
 };
+
+export default TransactionsController;
