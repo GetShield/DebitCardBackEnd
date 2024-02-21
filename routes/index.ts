@@ -22,4 +22,4 @@ exports.init = function (app: Application) {
   app.use('/api/blockchain-transactions', blockchainTransactionRoutes);
   //app.use('/api/balances', balanceRoutes);
 
-};
+};                                                              
