@@ -9,7 +9,7 @@ import transactionsRoutes from './transactions.route';
 
 import blockchainRoutes from './blockchain.route';
 import blockchainTransactionRoutes from './blockchain-transaction.route';
-//import balanceRoutes from './balance.route';
+import balanceRoutes from './balance.route';
 
 
 const init = function (app: Application) {
@@ -20,7 +20,7 @@ const init = function (app: Application) {
   app.use('/api/blockchains', blockchainRoutes);
   app.use('/api/transactions', transactionsRoutes);
   app.use('/api/blockchain-transactions', blockchainTransactionRoutes);
-  //app.use('/api/balances', balanceRoutes);
+  app.use('/api/balances', balanceRoutes);
 
 };                                                              
 

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Wallet from '../models/wallet.model';
 import Blockchain from '../models/blockchain.model';
+import User from '../models/user.model';
 import config from '../config';
 
 import { validate } from 'bitcoin-address-validation';
@@ -16,9 +17,8 @@ const WalletController = {
 
   async getAll (req: Request, res: Response) {
    
-
     try {
-      const wallet = await Wallet.find();
+      const wallet = await Wallet.find().populate('users').populate('blockchains');
 
       res.send({ wallet });
     } catch (err) {
@@ -66,55 +66,20 @@ const WalletController = {
     }
   },
 
-  async createWallet (req: Request, res: Response) {
-    if (
-      req.body === undefined ||
-      req.body.address === undefined ||
-      req.body.chain_type === undefined
-    ) {
-      res
-        .status(400)
-        .send({ message: 'Wallet address or Chain Type can not be empty!' });
+  async getWalletByUser (req: Request, res: Response) {
+    if (req.params.userId === undefined) {
+      res.status(400).send({ message: 'User is empty!' });
       return;
     }
-    if (
-      req.body.chain_type === config.CHAIN_TYPE.BTC &&
-      !validate(req.body.address)
-    ) {
-      res.status(400).send({ message: 'Bitcoin address is not valid address!' });
-      return;
-    }
-    if (
-      req.body.chain_type === config.CHAIN_TYPE.ETH &&
-      !ethers.isAddress(req.body.address)
-    ) {
-      res.status(400).send({ message: 'Ethereum address is not valid address!' });
-      return;
-    }
-    if (req.body.chain_type === config.CHAIN_TYPE.TRON) {
-      const tronWeb = new TronWeb({
-        fullHost: 'https://api.trongrid.io',
-      });
-      if (!tronWeb.isAddress(req.body.address)) {
-        res.status(400).send({ message: 'Tron address is not valid address!' });
-        return;
-      }
-    }
-    
-
-    const wallet = new Wallet({
-      address: req.body.address,
-      chain_type: req.body.chain_type,
-      token_type: req.body.token_type,
-      balance: '0',
-    });
 
     try {
-      await wallet.save();
+      const wallet = await Wallet.findOne({ user: req.params.userId }).populate('user');
+      if (wallet === null) {
+        res.status(404).send({ message: 'No wallet found for this user!' });
+        return;
+      }
 
-      const result = await Wallet.findOne({ address: wallet.address });
-
-      res.send({ wallet: result });
+      res.send({ wallet});
     } catch (err) {
       if (err instanceof Error) {
         res.status(500).send({ message: err.message });
@@ -155,7 +120,8 @@ const WalletController = {
 
       // Create the new wallet
       const wallet = new Wallet(req.body);
-      wallet.blockchains = blockchainIds;
+      wallet.blockchains = blockchainIds;''
+      wallet.user = req.body.userId;
       await wallet.save({ session });
 
       // Add the new wallet to each associated blockchain
@@ -164,9 +130,23 @@ const WalletController = {
         { $push: { wallets: wallet._id } },
         { session }
       );
+      
+      // Add the new wallet to the user
+      await User.updateMany(
+        { _id: { $in: wallet.user } },
+        { $push: { wallets: wallet._id } },
+        { session }
+      );
 
       // Commit the transaction
       await session.commitTransaction();
+
+      // End the session
+      session.endSession();
+
+      // Find the new wallet
+      const result = await Wallet.findOne({ address: address });
+      res.send({ wallet: result });
 
     } catch (error) {
       // If an error occurred, abort the transaction
@@ -177,13 +157,6 @@ const WalletController = {
       } else {
         res.status(500).send({ message: 'An error occurred while creating the wallet' });
       }
-    } finally {
-      // End the session
-      session.endSession();
-
-      // Find the new wallet
-      const result = await Wallet.findOne({ address: address });
-      res.send({ wallet: result });
     }
   },
 

@@ -1,14 +1,16 @@
-const express = require('express');
+import authorize from '../middlewares/authorize';
+
+import express from 'express';
 const router = express.Router();
 
 import walletController from '../controllers/wallet.controller';
 
-router.post('/create', walletController.create);
-router.get('/price', walletController.getTokenPrice);
-router.get('/all', walletController.getAll);
-router.get('/get-by-blockchain/:blockchain', walletController.getWalletByBlockchain);
-router.get('/:address', walletController.getWalletByAddress);
-router.post('/', walletController.createWallet);
-router.put('/:address', walletController.updateBalanceByAddress);
+router.post('/create', authorize, walletController.create);
+router.get('/price', authorize, walletController.getTokenPrice);
+router.get('/', authorize, walletController.getAll);
+router.get('/get-by-blockchain/:blockchain', authorize, walletController.getWalletByBlockchain);
+router.get('/get-by-user/:userId', authorize, walletController.getWalletByUser);
+router.get('/:address', authorize, walletController.getWalletByAddress);
+router.put('/:address', authorize, walletController.updateBalanceByAddress);
 
 export default router;

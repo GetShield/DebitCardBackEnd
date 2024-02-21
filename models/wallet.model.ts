@@ -11,7 +11,7 @@ const WalletSchema: Schema = new Schema(
     {
         date: { type: Date, required: true },
         address: { type: String, required: true, unique: true },
-        user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        user: { type: Schema.Types.ObjectId, ref: 'users', required: true },
         blockchains: [{ type: Schema.Types.ObjectId, ref: 'blockchains' }]
     },
     {
