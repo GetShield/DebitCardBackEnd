@@ -6,4 +6,4 @@ const transactionController = require('../controllers/blockchainTransaction.cont
 router.get('/:tx_id', transactionController.getTransactionById);
 router.get('/:wallet_address', transactionController.getTransactionByWallet);
 
-module.exports = router;
+export default router;

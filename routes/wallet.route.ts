@@ -8,4 +8,4 @@ router.get('/:address', walletController.getWalletByAddress);
 router.post('/', walletController.createWallet);
 router.put('/:address', walletController.updateBalanceByAddress);
 
-module.exports = router;
+export default router;

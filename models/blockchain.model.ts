@@ -17,4 +17,4 @@ const Blockchain = new Schema(
   }
 );
 
-module.exports = mongoose.model<IBlockchain>('blockchains', Blockchain);
+export default  mongoose.model<IBlockchain>('blockchains', Blockchain);

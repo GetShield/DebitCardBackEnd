@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-interface ITransaction extends Document {
+interface IBlockchainTransaction extends Document {
     date: Date;
     amount: Number;
     from_address: String,
@@ -8,7 +8,7 @@ interface ITransaction extends Document {
     Balance: Schema.Types.ObjectId
 }
 
-const TransactionSchema: Schema = new Schema(
+const BlockchainTransactionSchema: Schema = new Schema(
     {
         date: { type: Date, required: true },
         from_address: { type: String, required: true },
@@ -18,8 +18,8 @@ const TransactionSchema: Schema = new Schema(
         Balance: { type: Schema.Types.ObjectId, ref: 'Balance', required: true }
     },
     {
-        collection: 'transactions',
+        collection: 'blockchainTransactions',
     }
 );
 
-export default mongoose.model<ITransaction>('transactions', TransactionSchema);
+export default mongoose.model<IBlockchainTransaction>('blockchainTransactions', BlockchainTransactionSchema);

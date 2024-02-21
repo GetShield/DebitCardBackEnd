@@ -10,4 +10,4 @@ router.get('/:id', authorize, userController.getUserById);
 router.post('/', authorize, userController.createUser);
 router.put('/:id', authorize, userController.updateUserById);
 
-module.exports = router;
+export default router;
