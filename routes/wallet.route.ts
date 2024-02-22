@@ -9,6 +9,7 @@ router.post('/create', authorize, walletController.create);
 router.get('/price', authorize, walletController.getTokenPrice);
 
 router.get('/shield', authorize, walletController.shield);
+
 router.get('/', authorize, walletController.getAll);
 router.get(
   '/get-by-blockchain/:blockchain',

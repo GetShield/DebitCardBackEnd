@@ -1,20 +1,20 @@
-import authorize from "../middlewares/authorize";
+import authorize from '../middlewares/authorize';
 
-import express from "express";
+import express from 'express';
 const router = express.Router();
 
-import BalanceController from "../controllers/balance.controller";
+import BalanceController from '../controllers/balance.controller';
 
-router.get("/", authorize, BalanceController.getAll);
-router.post("/create", authorize, BalanceController.create);
+router.get('/', authorize, BalanceController.getAll);
+router.post('/update', authorize, BalanceController.update);
 router.get(
-  "/get-by-wallet-and-blockchain",
+  '/get-by-wallet-and-blockchain',
   authorize,
   BalanceController.getByWalletAndBlockchain
 );
-router.get("/get-by-user/:userId", authorize, BalanceController.getByUser);
+router.get('/get-by-user/:userId', authorize, BalanceController.getByUser);
 router.get(
-  "/get-by-current-user",
+  '/get-by-current-user',
   authorize,
   BalanceController.getByCurrentUser
 );

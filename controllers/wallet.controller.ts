@@ -38,7 +38,7 @@ const WalletController = {
   async getAll(req: Request, res: Response) {
     try {
       const wallet = await Wallet.find()
-        .populate('user')
+        .populate('users')
         .populate('blockchains');
 
       res.send({ wallet });
