@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const secretKey = process.env.JWT_SECRET;
 
 export default {
-  async login (req: Request, res: Response) {
+  async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
 
@@ -26,7 +26,7 @@ export default {
         return;
       }
 
-      const token = jwt.sign({ id: user._id }, secretKey, { expiresIn: '1h' });
+      const token = jwt.sign({ id: user._id }, secretKey, { expiresIn: '3h' });
 
       const response = {
         _id: user._id,
@@ -44,7 +44,7 @@ export default {
     }
   },
 
-  async register (req: Request, res: Response) {
+  async register(req: Request, res: Response) {
     try {
       const { email, password, user_name } = req.body;
 
@@ -97,5 +97,5 @@ export default {
         res.status(500).send({ error: error.message });
       }
     }
-  }
-}
+  },
+};

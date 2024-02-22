@@ -122,9 +122,9 @@ const WalletController = {
     }
 
     try {
-      const wallet = await Wallet.find({ user: req.params.userId })
-        .populate('user')
-        .populate('blockchains');
+      const wallet = await Wallet.find({ user: req.params.userId }).populate(
+        'blockchains'
+      );
       if (wallet === null) {
         res.status(404).send({ message: 'No wallet found for this user!' });
         return;
@@ -145,9 +145,9 @@ const WalletController = {
     }
 
     try {
-      const wallet = await Wallet.find({ user: req.body.user.id })
-        .populate('user')
-        .populate('blockchains');
+      const wallet = await Wallet.find({ user: req.body.user.id }).populate(
+        'blockchains'
+      );
       if (wallet === null) {
         res.status(404).send({ message: 'No wallet found for this user!' });
         return;
