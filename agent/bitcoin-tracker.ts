@@ -1,30 +1,45 @@
-const axios = require('axios');
+import axios from 'axios';
 
-const bitcoinAddress = '2N3BrPtana8j8Mw2T4o42Cpin5TqXzDtdRN';
+// Define the interface for the transaction data you expect
+interface TransactionDetail {
+  inputs: Array<{
+    addresses: string[];
+  }>;
+  outputs: Array<{
+    addresses: string[];
+    value: number;
+  }>;
+  txid: string;
+}
 
-const apiUrl = `https://api.blockcypher.com/v1/btc/main/addrs/${bitcoinAddress}/full?limit=50`;
-
-async function checkTransactions() {
+// Function to fetch transactions for a specific BTC testnet address
+async function fetchTransactions(address: string) {
   try {
-    const response = await axios.get(apiUrl);
-    const transactions = response.data.txs;
+    const response = await axios.get(
+      `https://sochain.com/api/v2/address/BTCTEST/${address}`
+    );
+    const transactions: TransactionDetail[] = response.data.data.txs;
 
-    if (transactions.length > 0) {
-      console.log(
-        `Found ${transactions.length} transactions for address ${bitcoinAddress}`
-      );
-      // Process transactions here
-      transactions.forEach((tx: any) => {
-        console.log(`Transaction hash: ${tx.hash}`);
-        // Add more detailed processing per transaction as needed
+    transactions.forEach((tx) => {
+      tx.inputs.forEach((input) => {
+        input.addresses.forEach((originAddress) => {
+          tx.outputs.forEach((output) => {
+            if (output.addresses.includes(address)) {
+              console.log(
+                `Origin Wallet: ${originAddress}, Amount: ${
+                  output.value / 1e8
+                } BTC, TransactionHash: ${tx.txid}`
+              );
+            }
+          });
+        });
       });
-    } else {
-      console.log(`No transactions found for address ${bitcoinAddress}`);
-    }
+    });
   } catch (error) {
-    console.error(`Error fetching transactions: ${error}`);
+    console.error('Error fetching transactions:', error);
   }
 }
 
-// Check for new transactions every 6 seconds
-setInterval(checkTransactions, 6000);
+// Replace with the target wallet address
+const targetAddress = '2N3BrPtana8j8Mw2T4o42Cpin5TqXzDtdRN';
+fetchTransactions(targetAddress);
