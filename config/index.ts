@@ -27,10 +27,11 @@ export const CHAIN_MAP = {
 
 export const TAGET_WALLET_ADDRESS = {
   btc: '32KjG6o7TFcYyvHWADpg1m4JoXU4P5QN1L',
-  eth: '0x388C818CA8B9251b393131C08a736A67ccB19297', //"0x9e75e5185c7bd59f04147a28e3e663df674da2a0",
+  eth: '0x9e75e5185c7bd59f04147a28e3e663df674da2a0', //"0x9e75e5185c7bd59f04147a28e3e663df674da2a0",
   tron: 'TWNxsGw1o4rnP4FExQSEXuYzLtXm3dMkRd',
   sepolia: '0x3A2cfA4ceCcB92FfeB6953Eec492612E79c119a3',
   nile: 'TW7ZnpizoTh3HfKFUHMEDMim8M1LrWXueB',
+  testnet: '2N3BrPtana8j8Mw2T4o42Cpin5TqXzDtdRN',
 };
 
 export const TOKEN_MAP = {

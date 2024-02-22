@@ -188,7 +188,9 @@ const WalletController = {
       const wallet = new Wallet(req.body);
       wallet.blockchains = blockchainIds;
 
-      wallet.user = req.body.userId;
+      //if not passed a specific user id it will create for the logged user
+      wallet.user = req.body.userId || req.body.user.id;
+      wallet.date = new Date();
       await wallet.save({ session });
 
       // Add the new wallet to each associated blockchain
