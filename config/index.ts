@@ -9,7 +9,7 @@ export const MORALIS_API_KEY = process.env.MORALIS_API_KEY || '';
 export const CHAIN_TYPE = {
   BTC: 'bitcoin',
   ETH: 'evm',
-  TRON: 'tron',
+  TRON: 'tvm',
 };
 
 export const CHAIN_MAP = {

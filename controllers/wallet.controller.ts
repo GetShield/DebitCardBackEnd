@@ -12,64 +12,20 @@ const client = new CoinMarketCap(config.CMC_API_KEY);
 
 const WalletController = {
   async shield(req: Request, res: Response) {
-    try {
-      const wallet = [
-        {
-          chainType: 'bitcoin',
-          mainnet: true,
-          name: 'bitcoin',
-          description: 'Bitcoin',
-          native_symbol: 'BTC',
-          address: '32KjG6o7TFcYyvHWADpg1m4JoXU4P5QN1L',
-          acceptedCoins: ['BTC'],
-        },
-        {
-          chainType: 'evm',
-          mainnet: true,
-          name: 'ethereum',
-          description: 'Ethereum',
-          native_symbol: 'ETH',
-          address: '0x9e75e5185c7bd59f04147a28e3e663df674da2a0',
-          acceptedCoins: ['ETH', 'USDT', 'USDC'],
-        },
-        {
-          chainType: 'tvm',
-          mainnet: true,
-          name: 'tron',
-          description: 'Tron',
-          native_symbol: 'TRX',
-          address: 'TWNxsGw1o4rnP4FExQSEXuYzLtXm3dMkRd',
-          acceptedCoins: ['TRX', 'USDT'],
-        },
+    const userId = process.env.SHIELD_USERID;
+    if (userId === undefined) {
+      res.status(400).send({ message: 'User is empty!' });
+      return;
+    }
 
-        {
-          chainType: 'bitcoin',
-          mainnet: false,
-          name: 'testnet',
-          description: 'Bitcoin [TESTNET]',
-          native_symbol: 'BTC',
-          address: '2N3BrPtana8j8Mw2T4o42Cpin5TqXzDtdRN',
-          acceptedCoins: ['BTC'],
-        },
-        {
-          chainType: 'ethereum',
-          mainnet: false,
-          name: 'sepolia',
-          description: 'Ethereum [TESTNET]',
-          native_symbol: 'ETH',
-          address: '0x3A2cfA4ceCcB92FfeB6953Eec492612E79c119a3',
-          acceptedCoins: ['ETH', 'USDT', 'USDC'],
-        },
-        {
-          chainType: 'tron',
-          mainnet: false,
-          name: 'nile',
-          description: 'Tron [TESTNET]',
-          native_symbol: 'TRX',
-          address: 'TR6L3kDBTbzBvXDmffSzwDABMbreeqzsQb',
-          acceptedCoins: ['TRX', 'USDT'],
-        },
-      ];
+    try {
+      const wallet = await Wallet.find({ user: userId }).populate(
+        'blockchains'
+      );
+      if (wallet === null) {
+        res.status(404).send({ message: 'No wallet found for this user!' });
+        return;
+      }
 
       res.send({ wallet });
     } catch (err) {
