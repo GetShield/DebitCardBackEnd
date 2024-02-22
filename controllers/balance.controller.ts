@@ -137,6 +137,33 @@ const BalanceController = {
       }
     }
   },
+
+  async getByCurrentUser(req: Request, res: Response) {
+    try {
+      const userId = req.body.user?.id;
+      if (!userId) {
+        res.status(400).send({ message: "User not set!" });
+        return;
+      }
+
+      // Find wallets for the user
+      const wallets = await WalletModel.find({ user: userId });
+
+      // Extract wallet ids
+      const walletIds = wallets.map((wallet) => wallet._id);
+
+      // Find balances for the wallets
+      const balances = await BalanceModel.find({ wallet: { $in: walletIds } })
+        .populate("wallet")
+        .populate("blockchain");
+
+      res.send({ balances });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(500).send({ message: err.message });
+      }
+    }
+  },
 };
 
 export default BalanceController;

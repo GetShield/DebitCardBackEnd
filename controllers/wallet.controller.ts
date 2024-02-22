@@ -276,7 +276,7 @@ const WalletController = {
           acceptedCoins: ["TRX", "USDT"],
         },
       ];
-      res.send(wallets);
+      res.send({ wallets });
     } catch (err) {
       if (err instanceof Error) {
         res.status(500).send({ message: err.message });
