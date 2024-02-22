@@ -1,24 +1,23 @@
-import { Request, Response } from 'express';
-import mongoose from 'mongoose';
-import Wallet from '../models/wallet.model';
-import Blockchain from '../models/blockchain.model';
-import User from '../models/user.model';
-import config from '../config';
+import { Request, Response } from "express";
+import mongoose from "mongoose";
+import Wallet from "../models/wallet.model";
+import Blockchain from "../models/blockchain.model";
+import User from "../models/user.model";
+import config from "../config";
 
-import { validate } from 'bitcoin-address-validation';
-const TronWeb = require('tronweb');
-import { ethers } from 'ethers';
+import { validate } from "bitcoin-address-validation";
+const TronWeb = require("tronweb");
+import { ethers } from "ethers";
 
-const CoinMarketCap = require('coinmarketcap-api');
+const CoinMarketCap = require("coinmarketcap-api");
 const client = new CoinMarketCap(config.CMC_API_KEY);
 
-
 const WalletController = {
-
-  async getAll (req: Request, res: Response) {
-   
+  async getAll(req: Request, res: Response) {
     try {
-      const wallet = await Wallet.find().populate('users').populate('blockchains');
+      const wallet = await Wallet.find()
+        .populate("user")
+        .populate("blockchains");
 
       res.send({ wallet });
     } catch (err) {
@@ -28,9 +27,9 @@ const WalletController = {
     }
   },
 
-  async getWalletByAddress (req: Request, res: Response) {
+  async getWalletByAddress(req: Request, res: Response) {
     if (req.params.address === undefined) {
-      res.status(400).send({ message: 'Wallet address is empty!' });
+      res.status(400).send({ message: "Wallet address is empty!" });
       return;
     }
 
@@ -45,16 +44,18 @@ const WalletController = {
     }
   },
 
-  async getWalletByBlockchain (req: Request, res: Response) {
+  async getWalletByBlockchain(req: Request, res: Response) {
     if (req.params.blockchain === undefined) {
-      res.status(400).send({ message: 'Blockchain is empty!' });
+      res.status(400).send({ message: "Blockchain is empty!" });
       return;
     }
 
     try {
-      const blockchain = await Blockchain.findOne({ name: req.params.blockchain }).populate('wallets');
+      const blockchain = await Blockchain.findOne({
+        name: req.params.blockchain,
+      }).populate("wallets");
       if (blockchain === null) {
-        res.status(404).send({ message: 'Blockchain not found!' });
+        res.status(404).send({ message: "Blockchain not found!" });
         return;
       }
 
@@ -66,20 +67,22 @@ const WalletController = {
     }
   },
 
-  async getWalletByUser (req: Request, res: Response) {
+  async getWalletByUser(req: Request, res: Response) {
     if (req.params.userId === undefined) {
-      res.status(400).send({ message: 'User is empty!' });
+      res.status(400).send({ message: "User is empty!" });
       return;
     }
 
     try {
-      const wallet = await Wallet.findOne({ user: req.params.userId }).populate('user');
+      const wallet = await Wallet.find({ user: req.params.userId })
+        .populate("user")
+        .populate("blockchains");
       if (wallet === null) {
-        res.status(404).send({ message: 'No wallet found for this user!' });
+        res.status(404).send({ message: "No wallet found for this user!" });
         return;
       }
 
-      res.send({ wallet});
+      res.send({ wallet });
     } catch (err) {
       if (err instanceof Error) {
         res.status(500).send({ message: err.message });
@@ -87,8 +90,30 @@ const WalletController = {
     }
   },
 
+  async getWalletByCurrentUser(req: Request, res: Response) {
+    if (req.body.user === undefined) {
+      res.status(400).send({ message: "User is empty!" });
+      return;
+    }
 
-  async create (req: Request, res: Response) {
+    try {
+      const wallet = await Wallet.find({ user: req.body.user.id })
+        .populate("user")
+        .populate("blockchains");
+      if (wallet === null) {
+        res.status(404).send({ message: "No wallet found for this user!" });
+        return;
+      }
+
+      res.send({ wallet });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(500).send({ message: err.message });
+      }
+    }
+  },
+
+  async create(req: Request, res: Response) {
     if (
       req.body.address === undefined ||
       req.body.user === undefined ||
@@ -97,10 +122,9 @@ const WalletController = {
     ) {
       res
         .status(400)
-        .send({ message: 'Wallet address or Chain Type can not be empty!' });
+        .send({ message: "Wallet address or Chain Type can not be empty!" });
       return;
     }
-
 
     // Start a session for the transaction
     const session = await mongoose.startSession();
@@ -112,7 +136,9 @@ const WalletController = {
       // get blockchain ids
       let blockchainIds = [];
       for (let blockchainName of req.body.blockchains) {
-        const blockchain = await Blockchain.findOne({ name: blockchainName }).exec();
+        const blockchain = await Blockchain.findOne({
+          name: blockchainName,
+        }).exec();
         if (blockchain) {
           blockchainIds.push(blockchain._id);
         }
@@ -120,7 +146,8 @@ const WalletController = {
 
       // Create the new wallet
       const wallet = new Wallet(req.body);
-      wallet.blockchains = blockchainIds;''
+      wallet.blockchains = blockchainIds;
+      ("");
       wallet.user = req.body.userId;
       await wallet.save({ session });
 
@@ -130,7 +157,7 @@ const WalletController = {
         { $push: { wallets: wallet._id } },
         { session }
       );
-      
+
       // Add the new wallet to the user
       await User.updateMany(
         { _id: { $in: wallet.user } },
@@ -147,20 +174,21 @@ const WalletController = {
       // Find the new wallet
       const result = await Wallet.findOne({ address: address });
       res.send({ wallet: result });
-
     } catch (error) {
       // If an error occurred, abort the transaction
       await session.abortTransaction();
-      
+
       if (error instanceof Error) {
         res.status(500).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'An error occurred while creating the wallet' });
+        res
+          .status(500)
+          .send({ message: "An error occurred while creating the wallet" });
       }
     }
   },
 
-  async updateBalanceByAddress (req: Request, res: Response) {
+  async updateBalanceByAddress(req: Request, res: Response) {
     if (
       req.params.address === undefined ||
       req.body === undefined ||
@@ -168,7 +196,7 @@ const WalletController = {
     ) {
       res
         .status(400)
-        .send({ message: 'Wallet address or balance can not be empty!' });
+        .send({ message: "Wallet address or balance can not be empty!" });
       return;
     }
 
@@ -182,7 +210,7 @@ const WalletController = {
         const result = await Wallet.findOne({ address: wallet.address });
         res.send({ wallet: result });
       } else {
-        res.status(404).send({ message: 'Wallet not found' });
+        res.status(404).send({ message: "Wallet not found" });
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -191,7 +219,7 @@ const WalletController = {
     }
   },
 
-  async getTokenPrice (req: Request, res: Response) {
+  async getTokenPrice(req: Request, res: Response) {
     try {
       const quotes = await client.getQuotes({ symbol: config.TOKENS });
 
@@ -205,7 +233,56 @@ const WalletController = {
         res.status(500).send({ message: err.message });
       }
     }
-  }
+  },
+
+  async getShieldWallets(req: Request, res: Response) {
+    try {
+      const wallets = [
+        {
+          coin: "BTC",
+          name: "Bitcoin",
+          address: "32KjG6o7TFcYyvHWADpg1m4JoXU4P5QN1L",
+          acceptedCoins: ["BTC"],
+        },
+        {
+          coin: "ETH",
+          name: "Ethereum",
+          address: "0x9e75e5185c7bd59f04147a28e3e663df674da2a0",
+          acceptedCoins: ["ETH", "USDT", "USDC"],
+        },
+        {
+          coin: "TRX",
+          name: "Tron",
+          address: "TWNxsGw1o4rnP4FExQSEXuYzLtXm3dMkRd",
+          acceptedCoins: ["TRX", "USDT"],
+        },
+
+        {
+          coin: "BTC",
+          name: "Bitcoin [TESTNET]",
+          address: "32KjG6o7TFcYyvHWADpg1m4JoXU4P5QN1L",
+          acceptedCoins: ["BTC"],
+        },
+        {
+          coin: "ETH",
+          name: "Ethereum [TESTNET] (sepolia)",
+          address: "0x3A2cfA4ceCcB92FfeB6953Eec492612E79c119a3",
+          acceptedCoins: ["ETH", "USDT", "USDC"],
+        },
+        {
+          coin: "TRX",
+          name: "Tron [TESTNET] (nile)",
+          address: "TR6L3kDBTbzBvXDmffSzwDABMbreeqzsQb",
+          acceptedCoins: ["TRX", "USDT"],
+        },
+      ];
+      res.send(wallets);
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(500).send({ message: err.message });
+      }
+    }
+  },
 };
 
 export default WalletController;
