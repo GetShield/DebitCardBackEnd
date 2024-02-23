@@ -7,6 +7,7 @@ const router = express.Router();
 import walletController from '../controllers/wallet.controller';
 
 router.post('/create', authorize, logRequest, walletController.create);
+router.put('/update', authorize, logRequest, walletController.updateWallet);
 router.post('/create-for-current-user', authorize, walletController.create);
 router.get('/price', authorize, logRequest, walletController.getTokenPrice);
 

@@ -57,7 +57,7 @@ export const fetchEvmEvents = async function (blockchain: string) {
               let newAmount = currentAmount.valueOf() + balanceData.amount;
               balanceData['amount'] = newAmount;
 
-              logger.info(`New Amount: ${newAmount}`);
+              logger.info(`New Amount: ${newAmount} ${balanceData.crypto}`);
               await BalanceController.updateInside(balanceData);
             }
           }

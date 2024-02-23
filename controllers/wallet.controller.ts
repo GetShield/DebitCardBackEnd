@@ -38,7 +38,7 @@ const WalletController = {
   async getAll(req: Request, res: Response) {
     try {
       const wallet = await Wallet.find()
-        .populate('users')
+        .populate('user')
         .populate('blockchains');
 
       res.send({ wallet });
@@ -131,6 +131,58 @@ const WalletController = {
     } catch (err) {
       if (err instanceof Error) {
         res.status(500).send({ message: err.message });
+      }
+    }
+  },
+
+  async updateWallet(req: Request, res: Response) {
+    try {
+      if (req.body.blockchain === undefined) {
+        res.status(400).send({ message: 'Blockchain can not be empty!' });
+        return;
+      }
+
+      if (
+        req.body.oldAddress === undefined ||
+        req.body.newAddress === undefined
+      ) {
+        res
+          .status(400)
+          .send({ message: 'Old Address and New Address can not be empty!' });
+        return;
+      }
+
+      if (req.body.user === undefined) {
+        res.status(400).send({ message: 'User can not be empty!' });
+        return;
+      }
+
+      // get blockchain Id
+      const blockchain = await Blockchain.findOne({
+        name: req.body.blockchain,
+      });
+      if (blockchain === null) {
+        res.status(404).send({ message: 'Blockchain not found!' });
+        return;
+      }
+
+      let result = await Wallet.findOneAndUpdate(
+        { user: req.body.user.id, address: req.body.oldAddress },
+        { $set: { address: req.body.newAddress } }
+      );
+
+      if (result) {
+        res.send({ wallet: result });
+      } else {
+        res.status(404).send({ message: 'Wallet not found' });
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(500).send({ message: err.message });
+      } else {
+        res
+          .status(500)
+          .send({ message: 'An error occurred while updating the wallet' });
       }
     }
   },

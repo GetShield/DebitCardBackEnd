@@ -45,6 +45,7 @@ export const fetchTvmEvents = async function (blockchain: string) {
       let countTransactions = 0;
       for (const tx of transactions) {
         if (!processedTransactions.has(tx.txID)) {
+          processedTransactions.set(tx.txID, true);
           const urlTransaction = `${rpcUrl}/wallet/gettransactionbyid`;
 
           const payload = {
@@ -88,10 +89,10 @@ export const fetchTvmEvents = async function (blockchain: string) {
             let newAmount = currentAmount.valueOf() + balanceData.amount;
             balanceData['amount'] = newAmount;
 
-            logger.info(`New Amount: ${newAmount}`);
+            logger.info(`New Amount: ${newAmount} ${balanceData.crypto}`);
             await BalanceController.updateInside(balanceData);
           }
-          processedTransactions.set(tx.txID, true);
+
           countTransactions++;
         }
       }
