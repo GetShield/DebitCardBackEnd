@@ -9,8 +9,11 @@
   "scripts": {
     "dev": "nodemon",
     "debug": "node --inspect -r ts-node/register index.ts",
-    "start": "npm run build && node dist/server.js",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "pm2 start dist/index.js --name backend",
+    "stop": "pm2 stop backend",
+    "restart": "pm2 restart backend",
+    "delete": "pm2 delete backend"
   },
   "author": "",
   "license": "ISC",
