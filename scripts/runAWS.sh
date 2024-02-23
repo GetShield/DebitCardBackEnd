@@ -8,4 +8,4 @@ git checkout main
 git pull
 
 # Run your project
-npm run restart
+npm run all:restart
