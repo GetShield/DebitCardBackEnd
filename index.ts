@@ -10,7 +10,7 @@ import database from './database';
 import router from './routes';
 
 // import { fetchEthereumEvents } from "./agent/ethereum-tracker";
-import { fetchSepoliaEvents } from './agent/sepolia-tracker';
+import { fetchEvmEvents } from './agent/evm-tracker';
 
 const app = express();
 app.use(cors());
@@ -22,8 +22,8 @@ server.listen(config.PORT);
 server.on('error', onError);
 server.on('listening', onListening);
 
-// fetchEthereumEvents();
-fetchSepoliaEvents();
+fetchEvmEvents('sepolia');
+fetchEvmEvents('ethereum');
 
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
   process.env.AIRTABLE_BASE_ID

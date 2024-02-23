@@ -1,31 +1,53 @@
 import authorize from '../middlewares/authorize';
+import logRequest from '../middlewares/logRequest';
 
 import express from 'express';
 const router = express.Router();
 
 import walletController from '../controllers/wallet.controller';
 
-router.post('/create', authorize, walletController.create);
+router.post('/create', authorize, logRequest, walletController.create);
 router.post('/create-for-current-user', authorize, walletController.create);
-router.get('/price', authorize, walletController.getTokenPrice);
+router.get('/price', authorize, logRequest, walletController.getTokenPrice);
 
-router.get('/shield', authorize, walletController.shield);
+router.get('/shield', authorize, logRequest, walletController.shield);
 
-router.get('/', authorize, walletController.getAll);
+router.get('/', authorize, logRequest, walletController.getAll);
 router.get(
   '/get-by-blockchain/:blockchain',
   authorize,
   walletController.getWalletByBlockchain
 );
-router.get('/get-by-user/:userId', authorize, walletController.getWalletByUser);
+router.get(
+  '/get-by-user/:userId',
+  authorize,
+  logRequest,
+  walletController.getWalletByUser
+);
 router.get(
   '/get-by-current-user',
   authorize,
+  logRequest,
   walletController.getWalletByCurrentUser
 );
 
-router.get('/:address', authorize, walletController.getWalletByAddress);
-router.put('/:address', authorize, walletController.updateBalanceByAddress);
-router.get('/get-shield-wallets', authorize, walletController.getShieldWallets);
+router.get(
+  '/:address',
+  authorize,
+  logRequest,
+  walletController.getWalletByAddress
+);
+router.put(
+  '/:address',
+  authorize,
+  logRequest,
+  walletController.updateBalanceByAddress
+);
+router.get(
+  '/get-shield-wallets',
+  authorize,
+  logRequest,
+  walletController.getShieldWallets
+);
 
 export default router;

@@ -3,7 +3,7 @@ import express from 'express';
 const router = express.Router();
 
 import blockchainController from '../controllers/blockchain.controller';
-
-router.get('/', authorize, blockchainController.getAll);
+import logRequest from '../middlewares/logRequest';
+router.get('/', authorize, logRequest, blockchainController.getAll);
 
 export default router;
