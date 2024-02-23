@@ -19,7 +19,9 @@
     "trackers:restart": "tsc && pm2 restart trackers",
     "trackers:delete": "pm2 delete trackers",
     "all:start": "tsc && pm2 start dist/index.js --name backend && pm2 start dist/trackers.js --name trackers",
-    "all:stop": "pm2 stop backend && pm2 stop trackers"
+    "all:stop": "pm2 stop backend && pm2 stop trackers",
+    "all:restart": "tsc && pm2 restart backend && pm2 restart trackers",
+    "all:delete": "pm2 delete backend && pm2 delete trackers"
   },
   "author": "",
   "license": "ISC",
