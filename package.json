@@ -1,6 +1,9 @@
 {
   "name": "debitcardbackend",
   "version": "1.0.0",
+  "engines": {
+    "node": "20.x"
+  },
   "description": "This is backend for debitcard",
   "main": "index.ts",
   "scripts": {
