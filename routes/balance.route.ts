@@ -6,7 +6,7 @@ const router = express.Router();
 import BalanceController from '../controllers/balance.controller';
 
 router.get('/', authorize, BalanceController.getAll);
-router.post('/update', authorize, BalanceController.update);
+router.put('/update', authorize, BalanceController.update);
 router.get(
   '/get-by-wallet-and-blockchain',
   authorize,

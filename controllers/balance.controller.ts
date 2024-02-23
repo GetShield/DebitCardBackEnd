@@ -46,6 +46,27 @@ const BalanceController = {
     }
   },
 
+  async updateInside(data: any) {
+    try {
+      const blockchains = await BlockchainModel.find({ name: data.blockchain });
+      const wallets = await WalletModel.find({ address: data.walletAddress });
+      await BalanceController.updateBalance(
+        data.amount,
+        data.crypto,
+        blockchains[0]._id,
+        wallets[0]._id
+      );
+
+      let balances = await BalanceModel.find({
+        blockchain: blockchains[0]._id,
+        wallet: wallets[0]._id,
+      });
+      return balances;
+    } catch (error) {
+      return error;
+    }
+  },
+
   async update(req: Request, res: Response) {
     try {
       const blockchain = req.body.blockchain;
@@ -73,25 +94,48 @@ const BalanceController = {
         return;
       }
 
-      const blockchains = await BlockchainModel.find({ name: blockchain });
-      const wallets = await WalletModel.find({ address: walletAddress });
-      await BalanceController.updateBalance(
-        req.body.amount,
-        crypto,
-        blockchains[0]._id,
-        wallets[0]._id
-      );
-
-      let balances = await BalanceModel.find({
-        blockchain: blockchains[0]._id,
-        wallet: wallets[0]._id,
-      });
+      let balances = await BalanceController.updateInside(req.body);
 
       res.send({ balances });
     } catch (err) {
       if (err instanceof Error) {
         res.status(500).send({ message: err.message });
       }
+    }
+  },
+
+  async getAmountByCryptoWalletAndBlockchainInside(
+    balanceData: any
+  ): Promise<Number | Error> {
+    try {
+      const blockchains = await BlockchainModel.find({
+        name: balanceData.blockchain,
+      });
+      const wallets = await WalletModel.find({
+        address: balanceData.walletAddress,
+      });
+      if (blockchains.length === 0 || wallets.length === 0) {
+        new Error('Wallet or Blockchain not found!');
+      }
+      if (!balanceData.crypto) {
+        new Error('Crypto not set!');
+      }
+
+      let balances = await BalanceModel.find({
+        blockchain: blockchains[0]._id,
+        wallet: wallets[0]._id,
+        crypto: balanceData.crypto,
+      });
+      if (balances.length === 0) {
+        return 0;
+      } else {
+        return balances[0].amount;
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        return new Error(err.message);
+      }
+      return new Error('An error occurred.');
     }
   },
 
