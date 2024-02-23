@@ -43,11 +43,5 @@ router.put(
   logRequest,
   walletController.updateBalanceByAddress
 );
-router.get(
-  '/get-shield-wallets',
-  authorize,
-  logRequest,
-  walletController.getShieldWallets
-);
 
 export default router;
