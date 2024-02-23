@@ -11,6 +11,7 @@ import router from './routes';
 
 // import { fetchEthereumEvents } from "./agent/ethereum-tracker";
 import { fetchEvmEvents } from './agent/evm-tracker';
+import { fetchTvmEvents } from './agent/tvm-tracker';
 
 const app = express();
 app.use(cors());
@@ -25,6 +26,7 @@ server.on('listening', onListening);
 logger.info('Initializing Blockchain Treckers...');
 fetchEvmEvents('sepolia');
 fetchEvmEvents('ethereum');
+fetchTvmEvents('nile');
 
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
   process.env.AIRTABLE_BASE_ID

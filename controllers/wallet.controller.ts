@@ -276,55 +276,6 @@ const WalletController = {
       }
     }
   },
-
-  async getShieldWallets(req: Request, res: Response) {
-    try {
-      const wallets = [
-        {
-          coin: 'BTC',
-          name: 'Bitcoin',
-          address: '32KjG6o7TFcYyvHWADpg1m4JoXU4P5QN1L',
-          acceptedCoins: ['BTC'],
-        },
-        {
-          coin: 'ETH',
-          name: 'Ethereum',
-          address: '0x9e75e5185c7bd59f04147a28e3e663df674da2a0',
-          acceptedCoins: ['ETH', 'USDT', 'USDC'],
-        },
-        {
-          coin: 'TRX',
-          name: 'Tron',
-          address: 'TWNxsGw1o4rnP4FExQSEXuYzLtXm3dMkRd',
-          acceptedCoins: ['TRX', 'USDT'],
-        },
-
-        {
-          coin: 'BTC',
-          name: 'Bitcoin [TESTNET]',
-          address: '2N3BrPtana8j8Mw2T4o42Cpin5TqXzDtdRN',
-          acceptedCoins: ['BTC'],
-        },
-        {
-          coin: 'ETH',
-          name: 'Ethereum [TESTNET] (sepolia)',
-          address: '0x3A2cfA4ceCcB92FfeB6953Eec492612E79c119a3',
-          acceptedCoins: ['ETH', 'USDT', 'USDC'],
-        },
-        {
-          coin: 'TRX',
-          name: 'Tron [TESTNET] (nile)',
-          address: 'TR6L3kDBTbzBvXDmffSzwDABMbreeqzsQb',
-          acceptedCoins: ['TRX', 'USDT'],
-        },
-      ];
-      res.send({ wallets });
-    } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
-    }
-  },
 };
 
 export default WalletController;
