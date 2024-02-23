@@ -16,6 +16,7 @@ const init = function (app: Application) {
   app.use('/api/blockchains', blockchainRoutes);
   app.use('/api/transactions', transactionsRoutes);
   app.use('/api/balances', balanceRoutes);
+  app.get('/health-check', (req, res) => res.status(200).send('OK'));
 };
 
 export default { init };
