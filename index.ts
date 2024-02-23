@@ -22,6 +22,7 @@ server.listen(config.PORT);
 server.on('error', onError);
 server.on('listening', onListening);
 
+logger.info('Initializing Blockchain Treckers...');
 fetchEvmEvents('sepolia');
 fetchEvmEvents('ethereum');
 

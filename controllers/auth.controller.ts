@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { User } from '../types';
 import { DebitCardService } from '../services/debit-cards.service';
 import UserModel from '../models/user.model';
+import logger from 'node-color-log';
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -55,7 +56,7 @@ export default {
         return;
       }
 
-      console.log({ email, password, user_name });
+      logger.info({ email, password, user_name });
 
       const salt = bcrypt.genSaltSync(10);
       const hashed_password = bcrypt.hashSync(password, salt);

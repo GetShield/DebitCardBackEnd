@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-
+import logger from 'node-color-log';
 import ABI from '../abis/ERC20Abi.json';
 import { CHAIN_MAP, TOKEN_MAP, TAGET_WALLET_ADDRESS } from '../config';
 import BalanceController from '../controllers/balance.controller';
@@ -23,8 +23,8 @@ export const fetchEvmEvents = async function (blockchain: string) {
     trackingTokens = TOKEN_MAP.eth;
   }
 
-  console.log(
-    `\n${networkName} Tracker Started | Target Wallet: ${targetWallet}`
+  logger.info(
+    `${networkName} Tracker Started | Target Wallet: ${targetWallet}`
   );
   provider = new ethers.WebSocketProvider(webSocketUrl);
   provider.on('block', async (blockNumber) => {
@@ -41,8 +41,8 @@ export const fetchEvmEvents = async function (blockchain: string) {
             crypto: 'ETH',
           };
 
-          console.log(`${networkName} Transaction Identified: ${tx.hash}`);
-          console.log(balanceData);
+          logger.info(`${networkName} Transaction Identified: ${tx.hash}`);
+          logger.info(balanceData);
           let currentAmount =
             await BalanceController.getAmountByCryptoWalletAndBlockchainInside(
               balanceData
@@ -55,23 +55,23 @@ export const fetchEvmEvents = async function (blockchain: string) {
             let newAmount = currentAmount.valueOf() + balanceData.amount;
             balanceData['amount'] = newAmount;
 
-            console.log(`New Amount: ${newAmount}`);
+            logger.info(`New Amount: ${newAmount}`);
             await BalanceController.updateInside(balanceData);
           }
         }
       } catch (error) {
-        console.log(error);
+        logger.info(error);
       }
     }
   });
 
-  console.log(`Tracked Tokens: `);
+  logger.info(`Tracked Tokens: `);
 
   trackingTokens.forEach((token, index) => {
     const name = token.name;
     const address = token.address;
     const decimals = token.decimals;
-    console.log(`${name} | address: ${address}`);
+    logger.info(`${name} | address: ${address}`);
     const contract = new ethers.Contract(address, ABI, provider);
 
     contract.on('Transfer', async (from, to, value, event) => {
@@ -83,7 +83,7 @@ export const fetchEvmEvents = async function (blockchain: string) {
           value: ethers.formatUnits(value, decimals),
         };
 
-        console.log(transferEvent);
+        logger.info(transferEvent);
       }
     });
   });

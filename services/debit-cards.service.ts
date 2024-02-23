@@ -1,3 +1,4 @@
+import logger from 'node-color-log';
 import { baseDebitCards } from '..';
 import { Card, NewAirtableUser } from '../types';
 import { Result } from '../types';
@@ -6,7 +7,7 @@ import { getRampToken } from '../utils';
 export class DebitCardService {
   static async create(data: NewAirtableUser): Promise<Result<null, unknown>> {
     try {
-      console.log({ data });
+      logger.info({ data });
       await baseDebitCards.create(data);
 
       return { result: 'success', data: null };
