@@ -5,10 +5,14 @@ require('dotenv').config();
 // import { fetchEthereumEvents } from "./agent/ethereum-tracker";
 import { fetchEvmEvents } from './agent/evm-tracker';
 import { fetchTvmEvents } from './agent/tvm-tracker';
+import { fetchBitcoinEvents } from './agent/bitcoin-tracker';
 
 logger.info('########## Shield Debit Card ##########');
 logger.info('Initializing Blockchain Trackers...');
 
 fetchEvmEvents('sepolia');
 fetchEvmEvents('ethereum');
+fetchTvmEvents('tron');
 fetchTvmEvents('nile');
+// fetchBitcoinEvents('bitcoin');
+// fetchBitcoinEvents('testnet');
