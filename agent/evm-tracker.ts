@@ -3,6 +3,7 @@ import logger from 'node-color-log';
 import ABI from '../abis/ERC20Abi.json';
 import { CHAIN_MAP, TOKEN_MAP, TAGET_WALLET_ADDRESS } from '../config';
 import BalanceController from '../controllers/balance.controller';
+import TxHashController from '../controllers/txHash.controller';
 
 export const fetchEvmEvents = async function (blockchain: string) {
   let webSocketUrl: string = '';
@@ -24,6 +25,14 @@ export const fetchEvmEvents = async function (blockchain: string) {
       trackingTokens = TOKEN_MAP.eth;
     }
 
+    let processedTransactions = new Map();
+    let transactions = (await TxHashController.getByBlockchainInside(
+      blockchain
+    )) as any[];
+    for (const tx of transactions) {
+      processedTransactions.set(tx?.txHash, true);
+    }
+
     logger.info(
       `[${networkName}] Tracker Started | Target Wallet: ${targetWallet}`
     );
@@ -32,42 +41,53 @@ export const fetchEvmEvents = async function (blockchain: string) {
       const block = await provider.getBlock(blockNumber, true);
 
       for (const tx of block!.prefetchedTransactions) {
-        try {
-          if (tx.value > 0 && tx.to?.toLowerCase() === targetWallet) {
-            let balanceData = {
-              blockchain: blockchain,
-              walletAddress: tx.from,
-              to: tx.to,
-              amount: Number(ethers.formatEther(tx.value)),
-              crypto: 'ETH',
-              txHash: tx.hash, // TODO added later, test it
-            };
-
-            logger.info(
-              `[${networkName}] ${networkName} Transaction Identified: ${tx.hash}`
-            );
-            logger.info(`[${networkName}]`, balanceData);
-            let currentAmount =
-              await BalanceController.getAmountByCryptoWalletAndBlockchainInside(
-                balanceData
-              );
-
-            // get current balance and update
-            if (currentAmount instanceof Error) {
-              throw currentAmount;
-            } else {
-              let newAmount = currentAmount.valueOf() + balanceData.amount;
-              balanceData['amount'] = newAmount;
+        if (!processedTransactions.has(tx.hash)) {
+          processedTransactions.set(tx.hash, true);
+          try {
+            if (tx.value > 0 && tx.to?.toLowerCase() === targetWallet) {
+              let balanceData = {
+                blockchain: blockchain,
+                walletAddress: tx.from,
+                to: tx.to,
+                amount: Number(ethers.formatEther(tx.value)),
+                crypto: 'ETH',
+                txHash: tx.hash,
+              };
 
               logger.info(
-                `[${networkName}] New Amount: ${newAmount} ${balanceData.crypto}`
+                `[${networkName}] ${networkName} Transaction Identified: ${tx.hash}`
               );
-              await BalanceController.updateInside(balanceData);
-              logger.info('Balance Updated');
+              logger.info(`[${networkName}]`, balanceData);
+              let currentAmount =
+                await BalanceController.getAmountByCryptoWalletAndBlockchainInside(
+                  balanceData
+                );
+
+              // get current balance and update
+              if (currentAmount instanceof Error) {
+                throw currentAmount;
+              } else {
+                let newAmount = currentAmount.valueOf() + balanceData.amount;
+                balanceData['amount'] = newAmount;
+
+                logger.info(
+                  `[${networkName}] New Amount: ${newAmount} ${balanceData.crypto}`
+                );
+                await BalanceController.updateInside(balanceData);
+                logger.info('Balance Updated');
+              }
+              // serialize hash on database so it wont be processed again
+              let txHash: any = await TxHashController.create(
+                blockchain,
+                tx.hash
+              );
+              logger.info(
+                `[${networkName}] Transaction Hash Inserted in DATABASE: ${txHash?.txHash}`
+              );
             }
+          } catch (error) {
+            logger.info(error);
           }
-        } catch (error) {
-          logger.info(error);
         }
       }
     });

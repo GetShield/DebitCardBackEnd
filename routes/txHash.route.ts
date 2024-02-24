@@ -12,8 +12,8 @@ router.get(
   txHashController.getByBlockchain
 );
 
-router.get(
-  '/get-by-blockchain',
+router.delete(
+  '/delete-by-blockchain',
   authorize,
   logRequest,
   txHashController.deleteByBlockchain

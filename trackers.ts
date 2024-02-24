@@ -14,10 +14,10 @@ async function init() {
   logger.info('########## Shield Debit Card ##########');
   logger.info('Initializing Blockchain Trackers...');
 
-  // fetchEvmEvents('sepolia');
+  fetchEvmEvents('sepolia');
   // fetchEvmEvents('ethereum');
   // fetchTvmEvents('tron');
-  // fetchTvmEvents('nile');
+  fetchTvmEvents('nile');
   // fetchBitcoinEvents('bitcoin');
   fetchBitcoinEvents('testnet');
 }

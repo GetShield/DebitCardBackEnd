@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import Wallet from '../models/wallet.model';
 import Blockchain from '../models/blockchain.model';
 import User from '../models/user.model';
@@ -55,7 +55,15 @@ const WalletController = {
     }
 
     try {
-      const wallet = await Wallet.findOne({ address: address });
+      const wallet = await Wallet.findOne({ address: address })
+        .populate({
+          path: 'blockchains',
+          select: 'name', // Only populate the 'name' field of the 'blockchain' document
+        })
+        .populate({
+          path: 'user',
+          select: 'email', // Only populate the 'name' and 'email' fields of the 'user' document
+        });
       return wallet;
     } catch (err) {
       throw err;

@@ -4,6 +4,7 @@ import logger from 'node-color-log';
 const tronWeb = require('tronweb');
 import { CHAIN_MAP, TOKEN_MAP, TAGET_WALLET_ADDRESS } from '../config';
 import BalanceController from '../controllers/balance.controller';
+import TxHashController from '../controllers/txHash.controller';
 
 const REQUEST_INTERVAL = 5000;
 const REQUEST_THRESHOLD = 120000;
@@ -31,6 +32,12 @@ export const fetchTvmEvents = async function (blockchain: string) {
   }
 
   let processedTransactions = new Map();
+  let transactions = (await TxHashController.getByBlockchainInside(
+    blockchain
+  )) as any[];
+  for (const tx of transactions) {
+    processedTransactions.set(tx?.txHash, true);
+  }
   logger.info(
     `[${networkName}] Tracker Started | Target Wallet: ${targetWallet}`
   );
@@ -102,6 +109,11 @@ export const fetchTvmEvents = async function (blockchain: string) {
           }
 
           countTransactions++;
+          // serialize hash on database so it wont be processed again
+          let txHash: any = await TxHashController.create(blockchain, tx.txID);
+          logger.info(
+            `[${networkName}] Transaction Hash Inserted in DATABASE: ${txHash?.txHash}`
+          );
         }
       }
     } catch (error) {
