@@ -25,7 +25,7 @@ export const fetchEvmEvents = async function (blockchain: string) {
     }
 
     logger.info(
-      `${networkName} Tracker Started | Target Wallet: ${targetWallet}`
+      `[${networkName}] Tracker Started | Target Wallet: ${targetWallet}`
     );
     provider = new ethers.WebSocketProvider(webSocketUrl);
     provider.on('block', async (blockNumber) => {
@@ -43,8 +43,10 @@ export const fetchEvmEvents = async function (blockchain: string) {
               txHash: tx.hash, // TODO added later, test it
             };
 
-            logger.info(`${networkName} Transaction Identified: ${tx.hash}`);
-            logger.info(balanceData);
+            logger.info(
+              `[${networkName}] ${networkName} Transaction Identified: ${tx.hash}`
+            );
+            logger.info(`[${networkName}]`, balanceData);
             let currentAmount =
               await BalanceController.getAmountByCryptoWalletAndBlockchainInside(
                 balanceData
@@ -57,8 +59,11 @@ export const fetchEvmEvents = async function (blockchain: string) {
               let newAmount = currentAmount.valueOf() + balanceData.amount;
               balanceData['amount'] = newAmount;
 
-              logger.info(`New Amount: ${newAmount} ${balanceData.crypto}`);
+              logger.info(
+                `[${networkName}] New Amount: ${newAmount} ${balanceData.crypto}`
+              );
               await BalanceController.updateInside(balanceData);
+              logger.info('Balance Updated');
             }
           }
         } catch (error) {
@@ -67,14 +72,14 @@ export const fetchEvmEvents = async function (blockchain: string) {
       }
     });
 
-    logger.info(`Tracked Tokens: `);
+    logger.info(`[${networkName}] Tracked Tokens: `);
 
     trackingTokens.forEach((token, index) => {
       try {
         const name = token.name;
         const address = token.address;
         const decimals = token.decimals;
-        logger.info(`${name} | address: ${address}`);
+        logger.info(`[${networkName}] ${name} | address: ${address}`);
         const contract = new ethers.Contract(address, ABI, provider);
 
         contract.on('Transfer', async (from, to, value, event) => {

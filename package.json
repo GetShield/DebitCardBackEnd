@@ -15,6 +15,7 @@
     "backend:restart": "tsc && pm2 restart backend",
     "backend:delete": "pm2 delete backend",
     "trackers:debug": "node --inspect -r ts-node/register trackers.ts",
+    "trackers:dev": "nodemon trackers.ts",
     "trackers:start": "tsc && pm2 start dist/trackers.js --name trackers",
     "trackers:stop": "pm2 stop trackers",
     "trackers:restart": "tsc && pm2 restart trackers",

@@ -17,6 +17,9 @@ export const fetchBitcoinEvents = async function (blockchain: string) {
   if (blockchain === 'bitcoin') {
     networkName = 'Bitcoin';
     targetWallet = TAGET_WALLET_ADDRESS.btc;
+  } else if (blockchain === 'testnet') {
+    networkName = 'Testnet';
+    targetWallet = TAGET_WALLET_ADDRESS.testnet;
   }
 
   let processedTransactions = new Map();

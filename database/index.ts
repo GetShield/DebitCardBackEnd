@@ -4,9 +4,11 @@ import logger from 'node-color-log';
 import config from '../config';
 
 export default {
-  init () {
+  init() {
     mongoose
-      .connect(config.MONGOURI)
+      .connect(config.MONGOURI, {
+        serverSelectionTimeoutMS: 50000, // Increase timeout to 50 seconds
+      })
       .then(() => {
         logger.info('MongoDB database connection established successfully');
       })
@@ -17,5 +19,5 @@ export default {
         );
         process.exit(0);
       });
-  }
-}
+  },
+};

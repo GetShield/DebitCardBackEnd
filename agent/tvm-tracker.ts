@@ -27,12 +27,12 @@ export const fetchTvmEvents = async function (blockchain: string) {
     networkName = 'Tron';
     targetWallet = TAGET_WALLET_ADDRESS.tron;
     trackingTokens = TOKEN_MAP.tron;
-    rpcUrl = 'https://trongrid.io';
+    rpcUrl = 'https://api.trongrid.io';
   }
 
   let processedTransactions = new Map();
   logger.info(
-    `${networkName} Tracker Started | Target Wallet: ${targetWallet}`
+    `[${networkName}] Tracker Started | Target Wallet: ${targetWallet}`
   );
 
   setInterval(async () => {
@@ -60,7 +60,10 @@ export const fetchTvmEvents = async function (blockchain: string) {
           );
           const txData = txInfo.data.raw_data.contract[0].parameter.value;
 
-          logger.info('processed Transactions So Far:', countTransactions);
+          logger.info(
+            `[${networkName}]processed Transactions So Far:`,
+            countTransactions
+          );
 
           let balanceData = {
             blockchain: blockchain,
@@ -75,8 +78,10 @@ export const fetchTvmEvents = async function (blockchain: string) {
             balanceData.crypto = txData.asset_name;
           }
 
-          logger.info(`${networkName} Transaction Identified: ${tx.txID}`);
-          logger.info(balanceData);
+          logger.info(
+            `[${networkName}] ${networkName} Transaction Identified: ${tx.txID}`
+          );
+          logger.info(`[${networkName}]`, balanceData);
 
           // get current balance and update
           let currentAmount =
@@ -89,8 +94,11 @@ export const fetchTvmEvents = async function (blockchain: string) {
             let newAmount = currentAmount.valueOf() + balanceData.amount;
             balanceData['amount'] = newAmount;
 
-            logger.info(`New Amount: ${newAmount} ${balanceData.crypto}`);
+            logger.info(
+              `[${networkName}] New Amount: ${newAmount} ${balanceData.crypto}`
+            );
             await BalanceController.updateInside(balanceData);
+            logger.info('Balance Updated');
           }
 
           countTransactions++;

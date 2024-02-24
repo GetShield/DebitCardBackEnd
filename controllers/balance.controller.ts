@@ -108,17 +108,24 @@ const BalanceController = {
     balanceData: any
   ): Promise<Number | Error> {
     try {
-      const blockchains = await BlockchainModel.find({
-        name: balanceData.blockchain,
-      });
+      const blockchains = await BlockchainModel.find(
+        { name: balanceData.blockchain },
+        null,
+        { maxTimeMS: 50000 }
+      );
       const wallets = await WalletModel.find({
         address: balanceData.walletAddress,
       });
-      if (blockchains.length === 0 || wallets.length === 0) {
-        new Error('Wallet or Blockchain not found!');
+      if (blockchains.length === 0) {
+        throw new Error('Blockchain not found!');
       }
+
+      if (wallets.length === 0) {
+        throw new Error('Wallet of origin not registered!');
+      }
+
       if (!balanceData.crypto) {
-        new Error('Crypto not set!');
+        throw new Error('Crypto not set!');
       }
 
       let balances = await BalanceModel.find({
