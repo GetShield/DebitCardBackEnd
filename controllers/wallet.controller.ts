@@ -49,6 +49,19 @@ const WalletController = {
     }
   },
 
+  async getWalletByAddressInside(address: string) {
+    if (!address) {
+      throw new Error('Wallet address is empty!');
+    }
+
+    try {
+      const wallet = await Wallet.findOne({ address: address });
+      return wallet;
+    } catch (err) {
+      throw err;
+    }
+  },
+
   async getWalletByAddress(req: Request, res: Response) {
     if (req.params.address === undefined) {
       res.status(400).send({ message: 'Wallet address is empty!' });
@@ -56,8 +69,9 @@ const WalletController = {
     }
 
     try {
-      const wallet = await Wallet.findOne({ address: req.params.address });
-
+      const wallet = await WalletController.getWalletByAddressInside(
+        req.params.address
+      );
       res.send({ wallet });
     } catch (err) {
       if (err instanceof Error) {

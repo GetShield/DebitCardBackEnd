@@ -8,4 +8,4 @@ git checkout main
 git pull
 
 # Run your project
-npm run dev
+npm run brackend:dev

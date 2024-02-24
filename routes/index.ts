@@ -7,6 +7,7 @@ import cardRoutes from './cards.route';
 import transactionsRoutes from './transactions.route';
 import blockchainRoutes from './blockchain.route';
 import balanceRoutes from './balance.route';
+import txHash from './txHash.route';
 
 const init = function (app: Application) {
   app.use('/api/users', userRoutes);
@@ -16,6 +17,8 @@ const init = function (app: Application) {
   app.use('/api/blockchains', blockchainRoutes);
   app.use('/api/transactions', transactionsRoutes);
   app.use('/api/balances', balanceRoutes);
+  app.use('/api/tx-hash', txHash);
+
   app.get('/health-check', (req, res) => res.status(200).send('OK'));
 };
 

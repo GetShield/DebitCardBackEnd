@@ -7,9 +7,9 @@
   "description": "This is backend for debitcard",
   "main": "index.ts",
   "scripts": {
-    "dev": "nodemon",
     "build": "tsc",
-    "backern:debug": "node --inspect -r ts-node/register index.ts",
+    "backend:dev": "nodemon",
+    "backend:debug": "node --inspect -r ts-node/register index.ts",
     "backend:start": "tsc && pm2 start dist/index.js --name backend",
     "backend:stop": "pm2 stop backend",
     "backend:restart": "tsc && pm2 restart backend",
