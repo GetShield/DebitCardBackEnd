@@ -1,14 +1,11 @@
 import { Request, Response } from 'express';
-import mongoose, { ObjectId } from 'mongoose';
+import mongoose from 'mongoose';
+
 import Wallet from '../models/wallet.model';
 import Blockchain from '../models/blockchain.model';
 import User from '../models/user.model';
-import config from '../config';
-import validate from 'bitcoin-address-validation';
 import { validateWalletAddress } from '../utils';
-
-const CoinMarketCap = require('coinmarketcap-api');
-const client = new CoinMarketCap(config.CMC_API_KEY);
+import { WalletService } from '../services';
 
 const WalletController = {
   async shield(req: Request, res: Response) {
@@ -337,12 +334,7 @@ const WalletController = {
 
   async getTokenPrice(req: Request, res: Response) {
     try {
-      const quotes = await client.getQuotes({ symbol: config.TOKENS });
-
-      const priceArr = config.TOKENS.map((tokenName: string, index: number) => {
-        const price = quotes.data[tokenName].quote.USD.price;
-        return { name: tokenName, price: price };
-      });
+      const priceArr = await WalletService.getPrices();
       res.send({ data: priceArr });
     } catch (err) {
       if (err instanceof Error) {

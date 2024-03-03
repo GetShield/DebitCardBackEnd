@@ -3,6 +3,8 @@ import { CHAIN_TYPE } from '../config';
 import { validate } from 'bitcoin-address-validation';
 const TronWeb = require('tronweb'); //there is no types for tronweb
 import { ethers } from 'ethers';
+import { baseDebitCards } from '..';
+import { Balance, Price } from '../types';
 
 export async function getRampToken() {
   const endpoint = `${process.env.RAMP_API_URL}/token`;
@@ -18,7 +20,7 @@ export async function getRampToken() {
 
   const requestBody = {
     grant_type: 'client_credentials',
-    scope: 'cards:read transactions:read',
+    scope: 'cards:read transactions:read limits:read limits:write',
   };
 
   const response = await fetch(endpoint, {
@@ -29,6 +31,38 @@ export async function getRampToken() {
 
   const tokenRes: any = await response.json();
   return tokenRes.access_token;
+}
+
+export async function getRampUserId(userId: string): Promise<string> {
+  try {
+    const records = await baseDebitCards
+      .select({
+        filterByFormula: `{userId} = "${userId}"`,
+      })
+      .firstPage();
+
+    const rampUserId = records.map(
+      (record: any) => record.fields.rampUserId
+    )[0];
+
+    return rampUserId;
+  } catch (error) {
+    throw new Error('An error occurred while getting ramp user id');
+  }
+}
+
+export function calculateTotalBalance({
+  balances,
+  prices,
+}: {
+  balances: Balance[];
+  prices: Price[];
+}) {
+  return balances?.reduce((acc, balance) => {
+    const { price = 0 } =
+      prices.find((price) => price.name === balance.crypto) || {};
+    return acc + balance.amount * price;
+  }, 0);
 }
 
 export async function validateWalletAddress(

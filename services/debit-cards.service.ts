@@ -2,7 +2,7 @@ import logger from 'node-color-log';
 import { baseDebitCards } from '..';
 import { Card, NewAirtableUser } from '../types';
 import { Result } from '../types';
-import { getRampToken } from '../utils';
+import { getRampToken, getRampUserId } from '../utils';
 
 export class DebitCardService {
   static async create(data: NewAirtableUser): Promise<Result<null, unknown>> {
@@ -49,16 +49,7 @@ export class DebitCardService {
 
   static async findFromRamp(userId: string): Promise<Result<any, unknown>> {
     try {
-      const records = await baseDebitCards
-        .select({
-          filterByFormula: `{userId} = "${userId}"`,
-        })
-        .firstPage();
-
-      const rampUserId = records.map(
-        (record: any) => record.fields.rampUserId
-      )[0];
-
+      const rampUserId = await getRampUserId(userId);
       const token = await getRampToken();
 
       const cardsEndpoint = `${process.env.RAMP_API_URL}/cards?user_id=${rampUserId}`;

@@ -3,8 +3,7 @@ import { Request, Response } from 'express';
 import { DebitCardService } from '../services';
 
 const CardsController = {
-
-  async findCardsFromAirtable (req: Request, res: Response) {
+  async findCardsFromAirtable(req: Request, res: Response) {
     try {
       const userId = req.body.user.id;
 
@@ -37,6 +36,7 @@ const CardsController = {
           expiration: card.expiration,
           id: card.id,
           last_four: card.last_four,
+          spending_restrictions: card.spending_restrictions,
           state: card.state,
         };
       });
@@ -47,7 +47,7 @@ const CardsController = {
         return res.status(500).send({ error: error.message });
       }
     }
-  }
+  },
 };
 
 export default CardsController;

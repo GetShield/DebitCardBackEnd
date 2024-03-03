@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
+
 import BalanceModel from '../models/balance.model';
 import BlockchainModel from '../models/blockchain.model';
 import WalletModel from '../models/wallet.model';
-import { Document } from 'mongoose';
+import { BalanceService } from '../services';
 
 const BalanceController = {
   async getAll(req: Request, res: Response) {
@@ -183,16 +184,7 @@ const BalanceController = {
         return;
       }
 
-      // Find wallets for the user
-      const wallets = await WalletModel.find({ user: userId });
-
-      // Extract wallet ids
-      const walletIds = wallets.map((wallet) => wallet._id);
-
-      // Find balances for the wallets
-      const balances = await BalanceModel.find({ wallet: { $in: walletIds } })
-        .populate('wallet')
-        .populate('blockchain');
+      const balances = await BalanceService.getBalancesByUserId(userId);
 
       res.send({ balances });
     } catch (err) {
@@ -210,16 +202,7 @@ const BalanceController = {
         return;
       }
 
-      // Find wallets for the user
-      const wallets = await WalletModel.find({ user: userId });
-
-      // Extract wallet ids
-      const walletIds = wallets.map((wallet) => wallet._id);
-
-      // Find balances for the wallets
-      const balances = await BalanceModel.find({ wallet: { $in: walletIds } })
-        .populate('wallet')
-        .populate('blockchain');
+      const balances = await BalanceService.getBalancesByUserId(userId);
 
       res.send({ balances });
     } catch (err) {
