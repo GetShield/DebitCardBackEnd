@@ -8,6 +8,7 @@ import transactionsRoutes from './transactions.route';
 import blockchainRoutes from './blockchain.route';
 import balanceRoutes from './balance.route';
 import txHash from './txHash.route';
+import webhookRoutes from './webhook.route';
 
 const init = function (app: Application) {
   app.use('/api/users', userRoutes);
@@ -18,6 +19,8 @@ const init = function (app: Application) {
   app.use('/api/transactions', transactionsRoutes);
   app.use('/api/balances', balanceRoutes);
   app.use('/api/tx-hash', txHash);
+  // app.use('/api/webhook', webhookRoutes);
+  app.use('/', webhookRoutes);
 
   app.get('/health-check', (req, res) => res.status(200).send('OK'));
 };

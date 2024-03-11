@@ -3,7 +3,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const Airtable = require('airtable');
-require('dotenv').config();
+const agentv2 = require('./agentv2');
+
+const envFile = process.env.ENV === 'production' ? '.env' : '.env.development';
+require('dotenv').config({ path: envFile });
 
 logger.info('########## Shield Debit Card ##########');
 logger.info('Initializing Backend...');
@@ -50,4 +53,5 @@ function onListening() {
 
   database.init();
   router.init(app);
+  agentv2.setupListeners();
 }
