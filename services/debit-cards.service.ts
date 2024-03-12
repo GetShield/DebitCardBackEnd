@@ -3,6 +3,7 @@ import { baseDebitCards } from '..';
 import { Card, NewAirtableUser } from '../types';
 import { Result } from '../types';
 import { getRampToken } from '../utils';
+import { RAMP_API_URL } from '../config';
 
 export class DebitCardService {
   static async create(data: NewAirtableUser): Promise<Result<null, unknown>> {
@@ -12,7 +13,6 @@ export class DebitCardService {
 
       return { result: 'success', data: null };
     } catch (error) {
-      console.error(error);
       return { result: 'error', error };
     }
   }
@@ -61,7 +61,7 @@ export class DebitCardService {
 
       const token = await getRampToken();
 
-      const cardsEndpoint = `${process.env.RAMP_API_URL}/cards?user_id=${rampUserId}`;
+      const cardsEndpoint = `${RAMP_API_URL}/cards?user_id=${rampUserId}`;
 
       const response = await fetch(cardsEndpoint, {
         headers: {

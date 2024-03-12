@@ -3,16 +3,16 @@ import mongoose, { ObjectId } from 'mongoose';
 import Wallet from '../models/wallet.model';
 import Blockchain from '../models/blockchain.model';
 import User from '../models/user.model';
-import config from '../config';
+import { CMC_API_KEY, SHIELD_USERID, TOKENS } from '../config';
 import validate from 'bitcoin-address-validation';
 import { validateWalletAddress } from '../utils';
 
 const CoinMarketCap = require('coinmarketcap-api');
-const client = new CoinMarketCap(config.CMC_API_KEY);
+const client = new CoinMarketCap(CMC_API_KEY);
 
 const WalletController = {
   async shield(req: Request, res: Response) {
-    const userId = process.env.SHIELD_USERID;
+    const userId = SHIELD_USERID;
     if (userId === undefined) {
       res.status(400).send({ message: 'User is empty!' });
       return;
@@ -234,8 +234,9 @@ const WalletController = {
       let chainType: String = '';
       for (let blockchainName of req.body.blockchains) {
         const blockchain = await Blockchain.findOne({
-          name: blockchainName,
+          chain: blockchainName,
         }).exec();
+
         if (blockchain) {
           if (chainType && chainType !== blockchain.chainType) {
             res.status(400).send({
@@ -337,9 +338,9 @@ const WalletController = {
 
   async getTokenPrice(req: Request, res: Response) {
     try {
-      const quotes = await client.getQuotes({ symbol: config.TOKENS });
+      const quotes = await client.getQuotes({ symbol: TOKENS });
 
-      const priceArr = config.TOKENS.map((tokenName: string, index: number) => {
+      const priceArr = TOKENS.map((tokenName: string, index: number) => {
         const price = quotes.data[tokenName].quote.USD.price;
         return { name: tokenName, price: price };
       });

@@ -9,27 +9,13 @@ import {
   Status,
 } from '@tatumio/tatum';
 import logger from 'node-color-log';
-import config from '../config';
-
-const envFile =
-  process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
-require('dotenv').config({ path: envFile });
-
-export type Chain = 'Bitcoin' | 'Ethereum' | 'Tron';
-
-export const SUPPORTED_TESTNET_NETWORKS = [
-  Network.ETHEREUM_SEPOLIA,
-  Network.BITCOIN_TESTNET,
-  Network.TRON_SHASTA,
-];
-
-export const SUPPORTED_MAINNET_NETWORKS = [
-  Network.ETHEREUM,
-  Network.BITCOIN,
-  Network.TRON,
-];
-
-export const SUPPORTED_CHAINS = ['Ethereum', 'Bitcoin', 'Tron'];
+import { WEBHOOK_URL, TATUM_API_KEY, PLATFORM_ADDRESSES } from '../config';
+import {
+  SUPPORTED_CHAINS,
+  SUPPORTED_MAINNET_NETWORKS,
+  SUPPORTED_TESTNET_NETWORKS,
+  Chain,
+} from '../config/blockchain';
 
 const chainToTypeMap: {
   [key: string]: typeof Ethereum | typeof Tron | typeof Bitcoin;
@@ -39,11 +25,12 @@ const chainToTypeMap: {
   Bitcoin,
 };
 
+// Subscribe to notifications for a given blockchain chain and network
 const subscribe = async (chain: Chain, network: Network, address: string) => {
   let tatum = await tatumSdk(chain, network);
   const subscription = await tatum.notification.subscribe.incomingNativeTx({
     address,
-    url: process.env.WEBHOOK_URL as string,
+    url: WEBHOOK_URL,
   });
 
   if (subscription.status == Status.ERROR) {
@@ -54,11 +41,12 @@ const subscribe = async (chain: Chain, network: Network, address: string) => {
   logger.info(`Subscribed to network ${network} for address ${address}`);
 };
 
+// Set up subscriptions for all supported networks
 export const setupSubscriptions = async () => {
   logger.info('Checking network subscribtions.');
 
   const randomChain = SUPPORTED_CHAINS[0] as Chain;
-  const network = tatumNetwork(randomChain);
+  const network = mapChainToNetwork(randomChain);
   let tatum = await tatumSdk(randomChain, network);
 
   const { data }: ResponseDto<NotificationSubscription[]> =
@@ -83,25 +71,24 @@ export const setupSubscriptions = async () => {
 
   logger.info(`Subscribed to notifications on networks <${common}>.`);
 
+  // Subscribe to networks that are not yet subscribed to
   if (notSubscribed.length) {
     logger.info(`Subscribing to networks ${notSubscribed}.`);
 
     await Promise.all(
       notSubscribed.map(async (network) => {
-        let chain = networkToChain(network);
+        let chain = mapNetworkToChain(network);
         await subscribe(
           chain,
           network,
-          config.PLATFORM_ADDRESSES[
-            network as keyof typeof config.PLATFORM_ADDRESSES
-          ]
+          PLATFORM_ADDRESSES[network as keyof typeof PLATFORM_ADDRESSES]
         );
       })
     );
   }
 };
 
-// Create a `TatumSDK` instance specifying the chain and network
+// Initialize the Tatum SDK for a given blockchain chain and network
 const tatumSdk = async (chain: Chain, network: Network) => {
   const ChainType = chainToTypeMap[chain];
   if (!ChainType) {
@@ -110,12 +97,13 @@ const tatumSdk = async (chain: Chain, network: Network) => {
 
   return await TatumSDK.init<InstanceType<typeof ChainType>>({
     network,
-    apiKey: process.env.TATUM_TESTNET_API_KEY as string,
+    apiKey: TATUM_API_KEY,
     retryCount: 5,
   });
 };
 
-const networkToChain = (network: Network): Chain => {
+// Map a network to its corresponding blockchain chain
+const mapNetworkToChain = (network: Network): Chain => {
   switch (true) {
     case network.startsWith('ethereum'):
       return 'Ethereum';
@@ -128,8 +116,9 @@ const networkToChain = (network: Network): Chain => {
   }
 };
 
-const tatumNetwork = (chain: Chain): Network => {
-  const isDevelopment = process.env.NODE_ENV === 'development';
+// Map a blockchain chain to its corresponding network
+const mapChainToNetwork = (chain: Chain): Network => {
+  const isDevelopment = process.env.NODE_ENV === 'dev';
 
   const networkMapping = {
     Ethereum: isDevelopment ? Network.ETHEREUM_SEPOLIA : Network.ETHEREUM,
@@ -146,14 +135,16 @@ const tatumNetwork = (chain: Chain): Network => {
   return selectedNetwork;
 };
 
+// Get supported networks based on the current environment
 const supportedNetworks = (): Array<Network> => {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'dev') {
     return SUPPORTED_TESTNET_NETWORKS;
   }
 
   return SUPPORTED_MAINNET_NETWORKS;
 };
 
+// Get the key corresponding to a given value in the Network enum
 const getKeyFromValue = (value: string): string | undefined => {
   const keys = Object.keys(Network).filter(
     (key) => Network[key as keyof typeof Network] === value
@@ -161,6 +152,7 @@ const getKeyFromValue = (value: string): string | undefined => {
   return keys.length > 0 ? keys[0] : undefined;
 };
 
+// Find a network starting with the specified prefix
 const findNetworkStartingWithPrefix = (chain: Chain): Network => {
   const networks = supportedNetworks();
   for (let element of networks) {

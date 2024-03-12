@@ -3,10 +3,11 @@ import { User } from '../types';
 import { DebitCardService } from '../services/debit-cards.service';
 import UserModel from '../models/user.model';
 import logger from 'node-color-log';
+import {JWT_SECRET} from "../config";
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const secretKey = process.env.JWT_SECRET;
+const secretKey = JWT_SECRET;
 
 export default {
   async login(req: Request, res: Response) {

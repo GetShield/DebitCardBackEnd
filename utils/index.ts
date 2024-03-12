@@ -3,12 +3,13 @@ import { CHAIN_TYPE } from '../config';
 import { validate } from 'bitcoin-address-validation';
 const TronWeb = require('tronweb'); //there is no types for tronweb
 import { ethers } from 'ethers';
+import { RAMP_CLIENT_ID, RAMP_SECRET_ID, RAMP_API_URL } from '../config';
 
 export async function getRampToken() {
-  const endpoint = `${process.env.RAMP_API_URL}/token`;
+  const endpoint = `${RAMP_API_URL}/token`;
 
-  const clientId = process.env.RAMP_CLIENT_ID;
-  const clientSecret = process.env.RAMP_SECRET_ID;
+  const clientId = RAMP_CLIENT_ID;
+  const clientSecret = RAMP_SECRET_ID;
 
   const headers = {
     Accept: 'application/json',

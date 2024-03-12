@@ -1,6 +1,4 @@
-const logger = require('node-color-log');
-
-require('dotenv').config();
+import logger from 'node-color-log';
 
 // import { fetchEthereumEvents } from "./agent/ethereum-tracker";
 import { fetchEvmEvents } from './agent/evm-tracker';

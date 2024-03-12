@@ -4,10 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const Airtable = require('airtable');
 const agentv2 = require('./agentv2');
-
-const envFile =
-  process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
-require('dotenv').config({ path: envFile });
+const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID } = require('./config');
 
 logger.info('########## Shield Debit Card ##########');
 logger.info('Initializing Backend...');
@@ -26,9 +23,7 @@ server.listen(config.PORT);
 server.on('error', onError);
 server.on('listening', onListening);
 
-const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
-  process.env.AIRTABLE_BASE_ID
-);
+const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 export const baseDebitCards = base('Debit Cards');
 
 function onError(error: any) {

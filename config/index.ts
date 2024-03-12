@@ -1,10 +1,21 @@
-import { config } from 'dotenv';
-config();
+import * as dotenv from 'dotenv';
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 export const PORT = process.env.PORT || 8080;
 export const MONGOURI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
 export const CMC_API_KEY = process.env.CMC_API_KEY || '';
 export const MORALIS_API_KEY = process.env.MORALIS_API_KEY || '';
+export const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
+export const TATUM_API_KEY = process.env.TATUM_API_KEY || '';
+export const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || '';
+export const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || '';
+export const JWT_SECRET = process.env.JWT_SECRET || '';
+export const RAMP_CLIENT_ID = process.env.RAMP_CLIENT_ID || '';
+export const RAMP_SECRET_ID = process.env.RAMP_SECRET_ID || '';
+export const RAMP_API_URL = process.env.RAMP_API_URL || '';
+export const SHIELD_USERID = process.env.SHIELD_USERID || '';
+export const TRON_API_KEY = process.env.TRON_API_KEY || '';
 
 export const CHAIN_TYPE = {
   BTC: 'bitcoin',
@@ -109,4 +120,12 @@ export default {
   TOKENS,
   TAGET_WALLET_ADDRESS,
   PLATFORM_ADDRESSES,
+  TATUM_API_KEY,
+  WEBHOOK_URL,
+  JWT_SECRET,
+  RAMP_CLIENT_ID,
+  RAMP_SECRET_ID,
+  SHIELD_USERID,
+  RAMP_API_URL,
+  TRON_API_KEY,
 };
