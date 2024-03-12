@@ -5,7 +5,8 @@ const cors = require('cors');
 const Airtable = require('airtable');
 const agentv2 = require('./agentv2');
 
-const envFile = process.env.ENV === 'production' ? '.env' : '.env.development';
+const envFile =
+  process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
 require('dotenv').config({ path: envFile });
 
 logger.info('########## Shield Debit Card ##########');
@@ -51,7 +52,7 @@ function onError(error: any) {
 function onListening() {
   logger.info('Listening on port: ' + config.PORT);
 
+  agentv2.setupSubscriptions();
   database.init();
   router.init(app);
-  agentv2.setupListeners();
 }

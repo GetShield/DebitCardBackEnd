@@ -89,6 +89,15 @@ export const TOKEN_MAP = {
 
 export const TOKENS = ['BTC', 'ETH', 'USDT', 'USDC', 'USDD', 'TRX'];
 
+export const PLATFORM_ADDRESSES = {
+  'bitcoin-mainnet': 'bc1qv06tjpcqmmfprv9m226ue52xvljg93pa5knsly',
+  'bitcoin-testnet': 'tb1qnz7l8tujzsty53pwvgsr2v4j3we2nlh0tp424d',
+  'ethereum-sepolia': '0x939CaC66A13a8F777cc898B81c98eF50eC97796D',
+  'ethereum-mainnet': '0x939CaC66A13a8F777cc898B81c98eF50eC97796D',
+  'tron-mainnet': 'TG8G6qYAzCxSwR8Bzf2CJuBjU8qQ4MFxx2',
+  'tron-testnet': 'TG8G6qYAzCxSwR8Bzf2CJuBjU8qQ4MFxx2',
+};
+
 export default {
   PORT,
   MONGOURI,
@@ -99,4 +108,5 @@ export default {
   TOKEN_MAP,
   TOKENS,
   TAGET_WALLET_ADDRESS,
+  PLATFORM_ADDRESSES,
 };
