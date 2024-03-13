@@ -226,7 +226,8 @@ const WalletController = {
     const session = await mongoose.startSession();
     session.startTransaction();
 
-    const address = req.body?.address;
+    const address = req.body?.address.toLowerCase();
+    console.log('address: ', address);
 
     try {
       // get blockchain ids
@@ -238,13 +239,14 @@ const WalletController = {
         }).exec();
 
         if (blockchain) {
-          if (chainType && chainType !== blockchain.chainType) {
-            res.status(400).send({
-              message:
-                'Wallet can not be created with multiple blockchain types!',
-            });
-            return;
-          }
+          // TODO: Fix logic
+          // if (chainType && chainType !== blockchain.chainType) {
+          //   res.status(400).send({
+          //     message:
+          //       'Wallet can not be created with multiple blockchain types!',
+          //   });
+          //   return;
+          // }
           chainType = blockchain.chainType;
           blockchainIds.push(blockchain._id);
         }

@@ -1,6 +1,6 @@
 export interface TxData {
   chain: string;
-  amount: number;
+  amount: any;
   from: string;
   to: string;
   blockNumber: Number;

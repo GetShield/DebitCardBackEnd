@@ -4,10 +4,12 @@ interface ITxReceipt extends Document {
   txHash: String;
   identificationDate: Date;
   blockchain: Schema.Types.ObjectId;
+  blockNumber: Number;
 }
 
 const TxReceipt = new Schema(
   {
+    blockNumber: { type: Number, required: true },
     txHash: { type: String, required: true },
     from: { type: String, required: true },
     to: { type: String, required: true },

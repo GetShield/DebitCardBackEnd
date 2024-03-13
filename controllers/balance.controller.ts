@@ -31,7 +31,7 @@ const BalanceController = {
     try {
       await BalanceModel.findOneAndUpdate(
         { currency, blockchain: blockchainId, wallet: walletId },
-        { amount: amount },
+        { $inc: { amount: amount } },
         { upsert: true }
       );
     } catch (error) {
@@ -43,6 +43,7 @@ const BalanceController = {
     try {
       const blockchains = await BlockchainModel.find({ chain: data.chain });
       const wallets = await WalletModel.find({ address: data.from });
+
       await BalanceController.updateBalance(
         data.amount,
         data.currency,
@@ -50,11 +51,11 @@ const BalanceController = {
         wallets[0]._id
       );
 
-      let balances = await BalanceModel.find({
+      let balance = await BalanceModel.findOne({
         blockchain: blockchains[0]._id,
         wallet: wallets[0]._id,
       });
-      return balances;
+      return balance;
     } catch (error) {
       return error;
     }
