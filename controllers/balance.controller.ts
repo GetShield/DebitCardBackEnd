@@ -3,6 +3,7 @@ import BalanceModel from '../models/balance.model';
 import BlockchainModel from '../models/blockchain.model';
 import WalletModel from '../models/wallet.model';
 import { Document } from 'mongoose';
+import { TxData } from '../types/txData';
 
 const BalanceController = {
   async getAll(req: Request, res: Response) {
@@ -23,22 +24,14 @@ const BalanceController = {
 
   async updateBalance(
     amount: number,
-    crypto: string,
+    currency: string,
     blockchainId: string,
     walletId: string
   ) {
     try {
-      const balanceData = {
-        date: new Date(),
-        amount: amount,
-        crypto: crypto,
-        blockchain: blockchainId,
-        wallet: walletId,
-      };
-
       await BalanceModel.findOneAndUpdate(
-        { crypto, blockchain: blockchainId, wallet: walletId },
-        { amount: amount },
+        { currency, blockchain: blockchainId, wallet: walletId },
+        { $inc: { amount: amount } },
         { upsert: true }
       );
     } catch (error) {
@@ -46,22 +39,23 @@ const BalanceController = {
     }
   },
 
-  async updateInside(data: any) {
+  async updateInside(data: TxData) {
     try {
-      const blockchains = await BlockchainModel.find({ name: data.blockchain });
-      const wallets = await WalletModel.find({ address: data.walletAddress });
+      const blockchains = await BlockchainModel.find({ chain: data.chain });
+      const wallets = await WalletModel.find({ address: data.from });
+
       await BalanceController.updateBalance(
         data.amount,
-        data.crypto,
+        data.currency,
         blockchains[0]._id,
         wallets[0]._id
       );
 
-      let balances = await BalanceModel.find({
+      let balance = await BalanceModel.findOne({
         blockchain: blockchains[0]._id,
         wallet: wallets[0]._id,
       });
-      return balances;
+      return balance;
     } catch (error) {
       return error;
     }

@@ -1,6 +1,7 @@
 import { baseDebitCards } from '..';
 import { Result, Transaction } from '../types';
 import { getRampToken } from '../utils';
+import { RAMP_API_URL } from '../config';
 
 export class TransactionsService {
   static async find(userId: string): Promise<Result<any, unknown>> {
@@ -18,7 +19,7 @@ export class TransactionsService {
         (record: any) => record.fields.rampUserId
       )[0];
 
-      const transactionsEndpoint = `${process.env.RAMP_API_URL}/transactions?user_id=${rampUserId}&order_by_date_desc=true`;
+      const transactionsEndpoint = `${RAMP_API_URL}/transactions?user_id=${rampUserId}&order_by_date_desc=true`;
 
       const response = await fetch(transactionsEndpoint, {
         headers: {

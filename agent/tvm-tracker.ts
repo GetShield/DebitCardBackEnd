@@ -1,8 +1,8 @@
-require('dotenv').config();
 const axios = require('axios');
+
 import logger from 'node-color-log';
 const tronWeb = require('tronweb');
-import { CHAIN_MAP, TOKEN_MAP, TAGET_WALLET_ADDRESS } from '../config';
+import { TRON_API_KEY, TOKEN_MAP, TAGET_WALLET_ADDRESS } from '../config';
 import BalanceController from '../controllers/balance.controller';
 import TxHashController from '../controllers/txHash.controller';
 
@@ -16,7 +16,7 @@ export const fetchTvmEvents = async function (blockchain: string) {
   let trackingTokens: any[] = [];
   let requestConfig = {
     'Content-Type': 'application/json',
-    'TRON-PRO-API-KEY': process.env.TRON_API_KEY || '',
+    'TRON-PRO-API-KEY': TRON_API_KEY,
   };
 
   if (blockchain === 'nile') {

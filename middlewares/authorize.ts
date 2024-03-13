@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import {JWT_SECRET} from "../config"
 const jwt = require('jsonwebtoken');
 
 function authorize(req: Request, res: Response, next: NextFunction) {
@@ -9,7 +10,7 @@ function authorize(req: Request, res: Response, next: NextFunction) {
     if (!token) {
       return res.status(401).json({ message: 'No token provided' });
     }
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
+    const decode = jwt.verify(token, JWT_SECRET);
     req.body.user = decode;
     next();
   } catch (error) {

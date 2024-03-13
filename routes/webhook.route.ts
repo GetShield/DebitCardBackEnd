@@ -1,9 +1,9 @@
 import express from 'express';
-const router = express.Router();
-
+import validate from '../middlewares/validateTx';
 import webhookController from '../controllers/webhook.controller';
 import logRequest from '../middlewares/logRequest';
 
-router.post('/', logRequest, webhookController.processWebhook);
+const router = express.Router();
+router.post('/notify', logRequest, validate, webhookController.processWebhook);
 
 export default router;
