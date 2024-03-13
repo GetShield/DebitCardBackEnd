@@ -15,3 +15,9 @@ export const SUPPORTED_MAINNET_NETWORKS = [
 ];
 
 export const SUPPORTED_CHAINS = ['Ethereum', 'Bitcoin', 'Tron'];
+
+// https://apidoc.tatum.io/tag/Exchange-rate#operation/getExchangeRate
+export const USD_BASE_PAIR = 'USD';
+export const TRON_CURRENCY = 'TRON';
+export const ETH_CURRENCY = 'ETH';
+export const BTC_CURRENCY = 'BTC';

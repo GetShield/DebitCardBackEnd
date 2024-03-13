@@ -6,9 +6,10 @@ import User from '../models/user.model';
 import { CMC_API_KEY, SHIELD_USERID, TOKENS } from '../config';
 import validate from 'bitcoin-address-validation';
 import { validateWalletAddress } from '../utils';
+import { getAllExchangeRates } from '../utils';
 
-const CoinMarketCap = require('coinmarketcap-api');
-const client = new CoinMarketCap(CMC_API_KEY);
+// const CoinMarketCap = require('coinmarketcap-api');
+// const client = new CoinMarketCap(CMC_API_KEY);
 
 const WalletController = {
   async shield(req: Request, res: Response) {
@@ -340,12 +341,7 @@ const WalletController = {
 
   async getTokenPrice(req: Request, res: Response) {
     try {
-      const quotes = await client.getQuotes({ symbol: TOKENS });
-
-      const priceArr = TOKENS.map((tokenName: string, index: number) => {
-        const price = quotes.data[tokenName].quote.USD.price;
-        return { name: tokenName, price: price };
-      });
+      const priceArr = await getAllExchangeRates();
       res.send({ data: priceArr });
     } catch (err) {
       if (err instanceof Error) {

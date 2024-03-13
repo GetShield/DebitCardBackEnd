@@ -5,6 +5,7 @@ import logger from 'node-color-log';
 import BalanceController from '../controllers/balance.controller';
 import { ethers } from 'ethers';
 import mongoose from 'mongoose';
+import { getExchangeRate } from '../utils';
 
 const WebhookController = {
   async processWebhook(req: Request, res: Response) {
@@ -18,6 +19,9 @@ const WebhookController = {
         chain: txReceipt.chain,
       });
 
+      let exchangeRate = Number((await getExchangeRate('ETH'))?.price);
+      let usdValue = exchangeRate * Number(txReceipt.amount);
+
       let receipt = await TxReceipt.create({
         txHash: txReceipt.txId,
         from: txReceipt.counterAddress,
@@ -26,6 +30,8 @@ const WebhookController = {
         amount: txReceipt.amount,
         blockNumber: txReceipt.blockNumber,
         identificationDate: new Date(),
+        exchangeRate,
+        usdValue,
       });
 
       logger.info(`New TxReceipt created: ${receipt}`);

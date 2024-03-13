@@ -3,7 +3,14 @@ import { CHAIN_TYPE } from '../config';
 import { validate } from 'bitcoin-address-validation';
 const TronWeb = require('tronweb'); //there is no types for tronweb
 import { ethers } from 'ethers';
-import { RAMP_CLIENT_ID, RAMP_SECRET_ID, RAMP_API_URL } from '../config';
+import {
+  RAMP_CLIENT_ID,
+  RAMP_SECRET_ID,
+  RAMP_API_URL,
+  TOKENS,
+  CMC_API_KEY,
+} from '../config';
+const CoinMarketCap = require('coinmarketcap-api');
 
 export async function getRampToken() {
   const endpoint = `${RAMP_API_URL}/token`;
@@ -74,5 +81,37 @@ export async function validateWalletAddress(
     } else {
       return new Error('An error occurred while validating the wallet address');
     }
+  }
+}
+
+export async function getExchangeRate(ticker: string) {
+  const client = new CoinMarketCap(CMC_API_KEY);
+  try {
+    const rates = await getAllExchangeRates();
+    for (const item of rates) {
+      if (item.name === ticker) {
+        return item;
+      }
+    }
+
+    return null;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function getAllExchangeRates() {
+  const client = new CoinMarketCap(CMC_API_KEY);
+  try {
+    const quotes = await client.getQuotes({ symbol: TOKENS });
+
+    const priceArr = TOKENS.map((tokenName: string, index: number) => {
+      const price = quotes.data[tokenName].quote.USD.price;
+      return { name: tokenName, price: price };
+    });
+
+    return priceArr;
+  } catch (err) {
+    throw err;
   }
 }
