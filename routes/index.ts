@@ -9,12 +9,14 @@ import blockchainRoutes from './blockchain.route';
 import balanceRoutes from './balance.route';
 import txHash from './txHash.route';
 import webhookRoutes from './webhook.route';
+import limitsRoutes from './limits.route';
 
 const init = function (app: Application) {
   app.use('/api/users', userRoutes);
   app.use('/api/wallets', walletRoutes);
   app.use('/api/auth', authRoutes);
   app.use('/api/cards', cardRoutes);
+  app.use('/api/limits', limitsRoutes);
   app.use('/api/blockchains', blockchainRoutes);
   app.use('/api/transactions', transactionsRoutes);
   app.use('/api/balances', balanceRoutes);

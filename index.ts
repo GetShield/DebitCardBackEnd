@@ -12,6 +12,7 @@ logger.info('Initializing Backend...');
 import config from './config';
 import database from './database';
 import router from './routes';
+import { startUpdateService } from './services';
 
 const app = express();
 app.use(cors());
@@ -25,6 +26,8 @@ server.on('listening', onListening);
 
 const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 export const baseDebitCards = base('Debit Cards');
+
+// startUpdateService(); // Start the update service
 
 function onError(error: any) {
   if (error.syscall != 'listen') {

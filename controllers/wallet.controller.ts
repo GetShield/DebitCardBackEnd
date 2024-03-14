@@ -1,15 +1,13 @@
 import { Request, Response } from 'express';
-import mongoose, { ObjectId } from 'mongoose';
+import mongoose from 'mongoose';
+
 import Wallet from '../models/wallet.model';
 import Blockchain from '../models/blockchain.model';
 import User from '../models/user.model';
-import { CMC_API_KEY, SHIELD_USERID, TOKENS } from '../config';
-import validate from 'bitcoin-address-validation';
-import { validateWalletAddress } from '../utils';
+import { SHIELD_USERID } from '../config';
 import { getAllExchangeRates } from '../utils';
 
-// const CoinMarketCap = require('coinmarketcap-api');
-// const client = new CoinMarketCap(CMC_API_KEY);
+import { validateWalletAddress } from '../utils';
 
 const WalletController = {
   async shield(req: Request, res: Response) {
