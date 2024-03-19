@@ -68,7 +68,7 @@ export function calculateTotalBalance({
 }) {
   return balances?.reduce((acc, balance) => {
     const { price = 0 } =
-      prices.find((price) => price.name === balance.crypto) || {};
+      prices.find((price) => price.name === balance.currency) || {};
     return acc + balance.amount * price;
   }, 0);
 }
@@ -117,6 +117,7 @@ export async function validateWalletAddress(
     }
   }
 }
+
 
 export async function getExchangeRate(ticker: string) {
   const client = new CoinMarketCap(CMC_API_KEY);

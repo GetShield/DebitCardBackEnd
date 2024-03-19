@@ -30,7 +30,7 @@ export class BalanceService {
 
       return balances.reduce((acc, balance) => {
         const { price = 0 } =
-          prices.find((price) => price.name === balance.crypto) || {};
+          prices.find((price) => price.name === balance.currency) || {};
         return acc + balance.amount * price;
       }, 0);
     } catch (error) {

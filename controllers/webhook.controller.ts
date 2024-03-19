@@ -4,8 +4,10 @@ import BlockchainModel from '../models/blockchain.model';
 import logger from 'node-color-log';
 import BalanceController from '../controllers/balance.controller';
 import { ethers } from 'ethers';
+import { getExchangeRate, getRampUserId } from '../utils';
+import { LimitsService } from '../services/limits.service';
 import mongoose from 'mongoose';
-import { getExchangeRate } from '../utils';
+import { Balance } from '../types';
 
 const WebhookController = {
   async processWebhook(req: Request, res: Response) {
@@ -46,10 +48,21 @@ const WebhookController = {
         currency: txReceipt.currency,
       };
 
-      const result = await BalanceController.updateInside(balanceData);
+      const result = (await BalanceController.updateInside(
+        balanceData
+      )) as Balance;
 
       await session.commitTransaction();
       session.endSession();
+
+      let rampUserId = await getRampUserId(result.userId.toString());
+
+      const updateLimitRes = await LimitsService.updateUserSpendLimits(
+        rampUserId,
+        usdValue
+      );
+
+      console.log('updateLimitRes: ', updateLimitRes);
 
       res.status(200).send();
     } catch (error) {

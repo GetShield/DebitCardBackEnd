@@ -10,3 +10,9 @@ export * from './wallet';
 export type Result<T, E> =
   | { result: 'success'; data: T }
   | { result: 'error'; error: E };
+
+export type Balance = {
+  currency: string;
+  userId: string;
+  amount: number;
+};

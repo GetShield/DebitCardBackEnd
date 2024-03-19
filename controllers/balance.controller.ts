@@ -55,8 +55,18 @@ const BalanceController = {
       let balance = await BalanceModel.findOne({
         blockchain: blockchains[0]._id,
         wallet: wallets[0]._id,
-      });
-      return balance;
+      }).populate({ path: 'wallet', select: 'user' });
+
+      if (!balance) {
+        throw new Error('Balance not found');
+      }
+
+      const walletWithUser: any = balance.wallet;
+      return {
+        currency: balance.currency.toString(),
+        userId: walletWithUser.user,
+        amount: Number(balance.amount),
+      };
     } catch (error) {
       return error;
     }
