@@ -1,13 +1,13 @@
-export interface TransactionsResponse {
+export interface RampTransactionsResponse {
   page: Page;
-  data: Transaction[];
+  data: RampTransaction[];
 }
 
 interface Page {
   next: any;
 }
 
-export interface Transaction {
+export interface RampTransaction {
   original_transaction_amount: OriginalTransactionAmount;
   entity_id: string;
   state: string;

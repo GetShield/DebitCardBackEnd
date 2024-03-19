@@ -11,35 +11,42 @@ import {
   TOKENS,
   CMC_API_KEY,
 } from '../config';
-const CoinMarketCap = require('coinmarketcap-api');
 import { baseDebitCards } from '..';
 import { Balance, Price } from '../types';
 
+const CoinMarketCap = require('coinmarketcap-api');
+
 export async function getRampToken() {
-  const endpoint = `${RAMP_API_URL}/token`;
+  try {
+    const endpoint = `${RAMP_API_URL}/token`;
 
-  const clientId = RAMP_CLIENT_ID;
-  const clientSecret = RAMP_SECRET_ID;
+    const clientId = RAMP_CLIENT_ID;
+    const clientSecret = RAMP_SECRET_ID;
 
-  const headers = {
-    Accept: 'application/json',
-    Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
-    'Content-Type': 'application/x-www-form-urlencoded',
-  };
+    const headers = {
+      Accept: 'application/json',
+      Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
 
-  const requestBody = {
-    grant_type: 'client_credentials',
-    scope: 'cards:read transactions:read limits:read limits:write',
-  };
+    const requestBody = {
+      grant_type: 'client_credentials',
+      scope: 'cards:read transactions:read limits:read limits:write',
+    };
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: headers,
-    body: new URLSearchParams(requestBody),
-  });
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: headers,
+      body: new URLSearchParams(requestBody),
+    });
 
-  const tokenRes: any = await response.json();
-  return tokenRes.access_token;
+    validateResponse(response, 'An error occurred while fetching ramp token');
+
+    const tokenRes: any = await response.json();
+    return tokenRes.access_token;
+  } catch (error) {
+    handleError(error, 'An error occurred while getting ramp token');
+  }
 }
 
 export async function getRampUserId(userId: string): Promise<string> {
