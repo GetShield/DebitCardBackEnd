@@ -1,20 +1,15 @@
 import { Request, Response } from 'express';
 
 import { LimitsService } from '../services';
+import { handleHttpError } from '../utils';
 
 const LimitsController = {
   async allLimits(req: Request, res: Response) {
     try {
       const limits = await LimitsService.findAll();
-      if (limits.result === 'error') {
-        return res.status(500).send({ error: limits.error });
-      }
-      res.send(limits.data);
+      res.send(limits);
     } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        return res.status(500).send({ error: error.message });
-      }
+      handleHttpError(error, res);
     }
   },
 
@@ -27,49 +22,37 @@ const LimitsController = {
 
     try {
       const limits = await LimitsService.getLimitsByUserId(userId);
-      if (limits.result === 'error') {
-        return res.status(500).send({ error: limits.error });
-      }
-      res.send(limits.data);
+      res.send(limits);
     } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        return res.status(500).send({ error: error.message });
-      }
+      handleHttpError(error, res);
     }
   },
 
   async getLimitById(req: Request, res: Response) {
     const { limitId } = req.params;
     if (!limitId) {
-      res.status(400).send({ message: 'Limit id can not be empty!' });
+      handleHttpError(new Error('Limit id can not be empty!'), res, 400);
       return;
     }
 
     try {
       const limit = await LimitsService.getLimitById(limitId);
-      if (limit.result === 'error') {
-        return res.status(500).send({ error: limit.error });
-      }
-      res.send(limit.data);
+      res.send(limit);
     } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        return res.status(500).send({ error: error.message });
-      }
+      handleHttpError(error, res);
     }
   },
 
   async updateLimit(req: Request, res: Response) {
     const { limitId } = req.params;
     if (!limitId) {
-      res.status(400).send({ message: 'Limit id can not be empty!' });
+      handleHttpError(new Error('Limit id can not be empty!'), res, 400);
       return;
     }
 
     const { body } = req;
     if (!body) {
-      res.status(400).send({ message: 'Request body can not be empty!' });
+      handleHttpError(new Error('Request body can not be empty!'), res, 400);
       return;
     }
 
@@ -77,15 +60,9 @@ const LimitsController = {
 
     try {
       const limit = await LimitsService.updateLimit(limitId, rest);
-      if (limit.result === 'error') {
-        return res.status(500).send({ error: limit.error });
-      }
-      res.send(limit.data);
+      res.send(limit);
     } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        return res.status(500).send({ error: error.message });
-      }
+      handleHttpError(error, res);
     }
   },
 };

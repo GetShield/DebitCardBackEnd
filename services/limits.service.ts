@@ -1,8 +1,13 @@
-import { Limit, LimitUpdateBody, Limits, Result } from '../types';
-import { getRampToken, getRampUserId } from '../utils';
+import { Limit, LimitUpdateBody, Limits } from '../types';
+import {
+  getRampToken,
+  getRampUserId,
+  handleError,
+  validateResponse,
+} from '../utils';
 
 export class LimitsService {
-  static async findAll(): Promise<Result<Limit[], unknown>> {
+  static async findAll(): Promise<Limit[]> {
     try {
       const token = await getRampToken();
 
@@ -15,19 +20,18 @@ export class LimitsService {
         },
       });
 
+      validateResponse(response, 'An error occurred while getting limits');
+
       const limits = (await response.json()) as Limits;
       const data = limits.data;
 
-      return { result: 'success', data };
+      return data;
     } catch (error) {
-      console.error(error);
-      return { result: 'error', error };
+      handleError(error, 'An error occurred while getting limits');
     }
   }
 
-  static async getLimitsByUserId(
-    userId: string
-  ): Promise<Result<Limit[], unknown>> {
+  static async getLimitsByUserId(userId: string): Promise<Limit[]> {
     try {
       const [rampUserId, token] = await Promise.all([
         getRampUserId(userId),
@@ -42,6 +46,11 @@ export class LimitsService {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      validateResponse(
+        response,
+        `An error occurred while getting limits for user ${userId}`
+      );
 
       const limits = (await response.json()) as Limits;
       const data = limits.data;
@@ -58,16 +67,13 @@ export class LimitsService {
 
       console.log({ totalBalance, totalLimit, 'real balance': realBalance });
 
-      return { result: 'success', data };
+      return data;
     } catch (error) {
-      console.error(error);
-      return { result: 'error', error };
+      handleError(error, 'An error occurred while getting limits by user id');
     }
   }
 
-  static async getLimitsByRampUserId(
-    rampUserId: string
-  ): Promise<Result<Limit[], unknown>> {
+  static async getLimitsByRampUserId(rampUserId: string): Promise<Limit[]> {
     try {
       const token = await getRampToken();
 
@@ -80,17 +86,24 @@ export class LimitsService {
         },
       });
 
+      validateResponse(
+        response,
+        `An error occurred while getting limits for ramp user ${rampUserId}`
+      );
+
       const limits = (await response.json()) as Limits;
       const data = limits.data;
 
-      return { result: 'success', data };
+      return data;
     } catch (error) {
-      console.error(error);
-      return { result: 'error', error };
+      handleError(
+        error,
+        'An error occurred while getting limits by ramp user id'
+      );
     }
   }
 
-  static async getLimitById(limitId: string): Promise<Result<Limit, unknown>> {
+  static async getLimitById(limitId: string): Promise<Limit> {
     try {
       const token = await getRampToken();
 
@@ -103,19 +116,23 @@ export class LimitsService {
         },
       });
 
+      validateResponse(
+        response,
+        `An error occurred while getting limit by id: ${limitId}`
+      );
+
       const limit = (await response.json()) as Limit;
 
-      return { result: 'success', data: limit };
+      return limit;
     } catch (error) {
-      console.error(error);
-      return { result: 'error', error };
+      handleError(error, 'An error occurred while getting limit by id');
     }
   }
 
   static async updateLimit(
     spend_limit_id: string,
     body: LimitUpdateBody
-  ): Promise<Result<Limit, unknown>> {
+  ): Promise<Limit> {
     try {
       const token = await getRampToken();
 
@@ -131,35 +148,30 @@ export class LimitsService {
         body: JSON.stringify(body),
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to update spend_limit_id: ${spend_limit_id}`);
-      }
+      validateResponse(
+        response,
+        `An error occurred while updating limit: ${spend_limit_id}`
+      );
 
       const limit = (await response.json()) as Limit;
 
-      return { result: 'success', data: limit };
+      return limit;
     } catch (error) {
-      return { result: 'error', error };
+      handleError(error, 'An error occurred while updating limit');
     }
   }
 
   static async updateUserSpendLimits(
     rampUserId: string,
     totalBalanceInUSD: number
-  ): Promise<Result<Limit, unknown>> {
+  ): Promise<Limit> {
     try {
-      const res = await this.getLimitsByRampUserId(rampUserId);
-
-      if (res.result === 'error') {
-        return { result: 'error', error: res.error };
-      }
-
-      const { data: limits } = res;
+      const limits = await this.getLimitsByRampUserId(rampUserId);
 
       const limitsLength = limits.length;
 
       if (limitsLength === 0) {
-        return { result: 'error', error: 'No limits found for user' };
+        throw new Error('No limits found for this user');
       }
 
       // update only first limit for now
@@ -175,15 +187,11 @@ export class LimitsService {
         },
       };
 
-      const res2 = await this.updateLimit(limit.id, newLimit);
-      if (res2.result === 'error') {
-        return { result: 'error', error: res2.error };
-      }
+      const limitUpdated = await this.updateLimit(limit.id, newLimit);
 
-      return { result: 'success', data: res2.data };
+      return limitUpdated;
     } catch (error) {
-      console.error(error);
-      return { result: 'error', error };
+      handleError(error, 'An error occurred while updating user spend limits');
     }
   }
 }

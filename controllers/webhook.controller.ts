@@ -1,13 +1,14 @@
-import { Request, Response } from 'express';
-import TxReceipt from '../models/txReceipt.model';
-import BlockchainModel from '../models/blockchain.model';
-import logger from 'node-color-log';
-import BalanceController from '../controllers/balance.controller';
 import { ethers } from 'ethers';
-import { getExchangeRate, getRampUserId } from '../utils';
-import { LimitsService } from '../services/limits.service';
+import { Request, Response } from 'express';
+import logger from 'node-color-log';
 import mongoose from 'mongoose';
+import TxReceipt from '../models/txReceipt.model';
+
 import { Balance } from '../types';
+import { getExchangeRate, getRampUserId, handleHttpError } from '../utils';
+import { LimitsService } from '../services/limits.service';
+import BalanceController from '../controllers/balance.controller';
+import BlockchainModel from '../models/blockchain.model';
 
 const WebhookController = {
   async processWebhook(req: Request, res: Response) {
@@ -69,7 +70,7 @@ const WebhookController = {
       if (error instanceof Error) {
         await session.abortTransaction();
         session.endSession();
-        res.status(500).send({ message: error.message });
+        handleHttpError(error, res);
       }
     }
   },

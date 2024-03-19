@@ -1,6 +1,7 @@
 import balanceModel from '../models/balance.model';
 import walletModel from '../models/wallet.model';
 import { Balance, Price } from '../types';
+import { handleError } from '../utils';
 
 export class BalanceService {
   static async getBalancesByUserId(userId: string): Promise<Balance[]> {
@@ -19,8 +20,7 @@ export class BalanceService {
 
       return balances as any as Balance[];
     } catch (error) {
-      console.error(`Failed to get balances for user ${userId}:`, error);
-      throw error;
+      handleError(error, `Failed to get balances for user ${userId}`);
     }
   }
 
@@ -28,37 +28,18 @@ export class BalanceService {
     try {
       const balances = await this.getBalancesByUserId(userId);
 
-      return balances.reduce((acc, balance) => {
+      const totalBalance = balances.reduce((acc, balance) => {
         const { price = 0 } =
           prices.find((price) => price.name === balance.currency) || {};
         return acc + balance.amount * price;
       }, 0);
+
+      return totalBalance;
     } catch (error) {
-      console.error(
-        `Failed to get total balance in USD for user ${userId}:`,
-        error
+      handleError(
+        error,
+        `Failed to get total balance in USD for user ${userId}`
       );
-      throw error;
     }
   }
 }
-
-// At the moment of the sync:
-
-// lastBalance: {
-//  eth: 100
-//  btc: 0.2
-//  tron: 1000
-// }
-// totalLastBalance: 100000 (cents)
-// lastSpent: 100
-// lastLimit: 200
-
-// balance: {
-//  eth: 105
-//  btc: 0.22
-//  tron: 860
-// }
-// totalBalance: 105000 (cents)
-// spent: 200
-// limit: 200

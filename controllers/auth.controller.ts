@@ -3,7 +3,8 @@ import { User } from '../types';
 import { DebitCardService } from '../services/debit-cards.service';
 import UserModel from '../models/user.model';
 import logger from 'node-color-log';
-import {JWT_SECRET} from "../config";
+import { JWT_SECRET } from '../config';
+import { handleHttpError } from '../utils';
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -53,7 +54,7 @@ export default {
       const alreadyExists = await UserModel.findOne({ email: email });
 
       if (alreadyExists) {
-        res.status(409).send({ error: 'Email already taken.' });
+        handleHttpError(new Error('Email already taken.'), res, 409);
         return;
       }
 
@@ -73,7 +74,7 @@ export default {
       const user = new UserModel(newUser);
       await user.save();
 
-      const cardRes = await DebitCardService.create({
+      await DebitCardService.create({
         userId: user._id,
         rampUserId: '',
         userName: user_name,
@@ -85,19 +86,12 @@ export default {
           cardCVV: '',
         }),
       });
-      if (cardRes.result === 'error') {
-        res.status(500).send({ error: cardRes.error });
-        return;
-      }
 
       const token = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
 
       res.json({ _id: user._id, user_name, email, token });
     } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        res.status(500).send({ error: error.message });
-      }
+      handleHttpError(error, res);
     }
   },
 };

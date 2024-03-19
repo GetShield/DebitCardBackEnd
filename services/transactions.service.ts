@@ -1,5 +1,10 @@
 import { Transaction, TransactionsResponse } from '../types';
-import { getRampToken, getRampUserId } from '../utils';
+import {
+  getRampToken,
+  getRampUserId,
+  handleError,
+  validateResponse,
+} from '../utils';
 import { RAMP_API_URL } from '../config';
 
 export class TransactionsService {
@@ -17,13 +22,17 @@ export class TransactionsService {
         },
       });
 
+      validateResponse(
+        response,
+        `Failed to find transactions from ramp for user ${userId}`
+      );
+
       const data = (await response.json()) as TransactionsResponse;
       const transactions = data.data;
 
       return transactions;
     } catch (error) {
-      console.error(`Failed to find transactions:`, error);
-      throw error;
+      handleError(error, `Failed to find transactions for user ${userId}`);
     }
   }
 }

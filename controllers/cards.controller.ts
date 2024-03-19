@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 
 import { DebitCardService } from '../services';
+import { handleHttpError } from '../utils';
+import { RampCard } from '../types';
 
 const CardsController = {
   async findCardsFromAirtable(req: Request, res: Response) {
@@ -8,15 +10,10 @@ const CardsController = {
       const userId = req.body.user.id;
 
       const cards = await DebitCardService.find(userId);
-      if (cards.result === 'error') {
-        return res.status(500).send({ error: cards.error });
-      }
-      res.send(cards.data);
+
+      res.send(cards);
     } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        return res.status(500).send({ error: error.message });
-      }
+      handleHttpError(error, res);
     }
   },
 
@@ -25,10 +22,8 @@ const CardsController = {
       const userId = req.body.user.id;
 
       const cards = await DebitCardService.findFromRamp(userId);
-      if (cards.result === 'error') {
-        return res.status(500).send({ error: cards.error });
-      }
-      const cardsData = cards.data.data.map((card: any) => {
+
+      const cardsData = cards.map((card: RampCard) => {
         return {
           cardholder_id: card.cardholder_id,
           cardholder_name: card.cardholder_name,
@@ -42,10 +37,7 @@ const CardsController = {
       });
       res.send(cardsData);
     } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        return res.status(500).send({ error: error.message });
-      }
+      handleHttpError(error, res);
     }
   },
 };

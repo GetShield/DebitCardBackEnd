@@ -1,33 +1,29 @@
 import { Request, Response } from 'express';
+
 import User from '../models/user.model';
+import { handleHttpError } from '../utils';
 
 const UserController = {
   async allUsers(req: Request, res: Response) {
     try {
       const users = await User.find();
-
       res.send({ users });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 
   async getUserById(req: Request, res: Response) {
     if (req.params.id === undefined) {
-      res.status(400).send({ message: 'User id can not be empty!' });
+      handleHttpError(new Error('User id can not be empty!'), res, 400);
       return;
     }
 
     try {
       const user = await User.findById(req.params.id);
-
       res.send({ user });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 
@@ -37,7 +33,7 @@ const UserController = {
       req.body.user_name === undefined ||
       !req.body.user_name
     ) {
-      res.status(400).send({ message: 'User name can not be empty!' });
+      handleHttpError(new Error('User name can not be empty!'), res, 400);
       return;
     }
 
@@ -57,15 +53,17 @@ const UserController = {
 
       res.send({ users });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 
   async updateUserById(req: Request, res: Response) {
     if (req.params.id === undefined || req.body == undefined) {
-      res.status(400).send({ message: 'User id and content can not be empty!' });
+      handleHttpError(
+        new Error('User id and content can not be empty!'),
+        res,
+        400
+      );
       return;
     }
 
@@ -74,9 +72,7 @@ const UserController = {
 
       res.send({ user });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 };

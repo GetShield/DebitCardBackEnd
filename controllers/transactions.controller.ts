@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import { TransactionsService } from '../services';
+import { handleHttpError } from '../utils';
 
 const TransactionsController = {
   async findTransactions(req: Request, res: Response) {
@@ -11,10 +12,7 @@ const TransactionsController = {
 
       res.send(transactions);
     } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        return res.status(500).send({ error: error.message });
-      }
+      handleHttpError(error, res);
     }
   },
 };

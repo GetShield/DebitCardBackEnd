@@ -1,5 +1,6 @@
 import config from '../config';
 import { Price } from '../types';
+import { handleError } from '../utils';
 
 const CoinMarketCap = require('coinmarketcap-api');
 const client = new CoinMarketCap(config.CMC_API_KEY);
@@ -16,8 +17,7 @@ export class WalletService {
 
       return priceArr;
     } catch (error) {
-      console.error(`Failed to get prices:`, error);
-      throw error;
+      handleError(error, `Failed to get prices`);
     }
   }
 }

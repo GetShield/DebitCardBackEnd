@@ -5,6 +5,7 @@ import BlockchainModel from '../models/blockchain.model';
 import WalletModel from '../models/wallet.model';
 import { TxData } from '../types/txData';
 import { BalanceService } from '../services';
+import { handleError, handleHttpError } from '../utils';
 
 const BalanceController = {
   async getAll(req: Request, res: Response) {
@@ -17,9 +18,7 @@ const BalanceController = {
 
       res.send({ balances });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 
@@ -103,9 +102,7 @@ const BalanceController = {
 
       res.send({ balances });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 
@@ -144,10 +141,7 @@ const BalanceController = {
         return balances[0].amount;
       }
     } catch (err) {
-      if (err instanceof Error) {
-        return new Error(err.message);
-      }
-      return new Error('An error occurred.');
+      handleError(err, 'Error getting amount by crypto, wallet and blockchain');
     }
   },
 
@@ -156,14 +150,14 @@ const BalanceController = {
       const blockchain = req.body.blockchain;
       const walletAddress = req.body.walletAddress;
       if (!blockchain || !walletAddress) {
-        res.status(400).send({ message: 'Wallet or Blockchain not set!' });
+        handleHttpError(new Error('Wallet or Blockchain not set!'), res, 400);
         return;
       }
 
       const blockchains = await BlockchainModel.find({ name: blockchain });
       const wallets = await WalletModel.find({ address: walletAddress });
       if (blockchains.length === 0 || wallets.length === 0) {
-        res.status(404).send({ message: 'Wallet or Blockchain not found!' });
+        handleHttpError(new Error('Wallet or Blockchain not found!'), res, 404);
         return;
       }
 
@@ -174,9 +168,7 @@ const BalanceController = {
 
       res.send({ balances });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 
@@ -184,7 +176,7 @@ const BalanceController = {
     try {
       const userId = req.params.userId;
       if (!userId) {
-        res.status(400).send({ message: 'User not set!' });
+        handleHttpError(new Error('User not set!'), res, 400);
         return;
       }
 
@@ -192,9 +184,7 @@ const BalanceController = {
 
       res.send({ balances });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 
@@ -202,7 +192,7 @@ const BalanceController = {
     try {
       const userId = req.body.user?.id;
       if (!userId) {
-        res.status(400).send({ message: 'User not set!' });
+        handleHttpError(new Error('User not set!'), res, 400);
         return;
       }
 
@@ -210,9 +200,7 @@ const BalanceController = {
 
       res.send({ balances });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 };

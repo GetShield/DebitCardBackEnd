@@ -1,8 +1,9 @@
-import { Error } from 'mongoose';
-import { CHAIN_TYPE } from '../config';
-import { validate } from 'bitcoin-address-validation';
 const TronWeb = require('tronweb'); //there is no types for tronweb
 import { ethers } from 'ethers';
+import { Response } from 'express';
+import { validate } from 'bitcoin-address-validation';
+
+import { CHAIN_TYPE } from '../config';
 import {
   RAMP_CLIENT_ID,
   RAMP_SECRET_ID,
@@ -111,13 +112,13 @@ export async function validateWalletAddress(
     return true;
   } catch (error: Error | any) {
     if (error instanceof Error) {
+      console.log('error', error.message);
       return error;
     } else {
       return new Error('An error occurred while validating the wallet address');
     }
   }
 }
-
 
 export async function getExchangeRate(ticker: string) {
   const client = new CoinMarketCap(CMC_API_KEY);
@@ -148,5 +149,33 @@ export async function getAllExchangeRates() {
     return priceArr;
   } catch (err) {
     throw err;
+  }
+}
+
+export function handleError(error: any, defaultMessage: string): never {
+  let message = defaultMessage;
+  if (error instanceof Error) {
+    message = error.message;
+  }
+  console.error(error);
+  throw new Error(message);
+}
+
+export function handleHttpError(
+  error: unknown,
+  res: Response,
+  statusCode: number = 500
+): void {
+  if (error instanceof Error) {
+    res.status(statusCode).send({ error: error.message });
+  } else {
+    res.status(statusCode).send({ error: 'An error occurred' });
+  }
+  console.error(error);
+}
+
+export function validateResponse(response: any, message: string) {
+  if (!response.ok) {
+    throw new Error(`${message}: ${response.status} - ${response.statusText}`);
   }
 }
