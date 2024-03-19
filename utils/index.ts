@@ -13,6 +13,7 @@ import {
 } from '../config';
 import { baseDebitCards } from '..';
 import { Balance, Price } from '../types';
+import { ObjectId } from 'mongoose';
 
 const CoinMarketCap = require('coinmarketcap-api');
 
@@ -49,7 +50,7 @@ export async function getRampToken() {
   }
 }
 
-export async function getRampUserId(userId: string): Promise<string> {
+export async function getRampUserId(userId: ObjectId): Promise<string> {
   try {
     const records = await baseDebitCards
       .select({

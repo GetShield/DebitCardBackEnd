@@ -56,7 +56,7 @@ const WebhookController = {
       await session.commitTransaction();
       session.endSession();
 
-      let rampUserId = await getRampUserId(result.userId.toString());
+      let rampUserId = await getRampUserId(result.userId);
 
       const updateLimitRes = await LimitsService.updateUserSpendLimits(
         rampUserId,

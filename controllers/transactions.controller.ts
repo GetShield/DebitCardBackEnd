@@ -39,11 +39,15 @@ const TransactionsController = {
     }
   },
 
-  async syncWithRamp(req: Request, res: Response) {
+  async syncByCurrentUser(req: Request, res: Response) {
     try {
       const userId = req.body.user.id;
 
-      const transactions = await TransactionsService.findFromRamp(userId);
+      const transactions = await TransactionsService.syncTransactions(userId);
+
+      if (!transactions.length) {
+        return res.send({ message: 'No new transactions found' });
+      }
 
       res.send(transactions);
     } catch (error) {

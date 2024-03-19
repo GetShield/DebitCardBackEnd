@@ -6,10 +6,11 @@ import {
   validateResponse,
 } from '../utils';
 import { RAMP_API_URL } from '../config';
-import TransactionModel, { ITransaction } from '../models/transaction.model';
+import TransactionModel, { Transaction } from '../models/transaction.model';
+import mongoose, { ObjectId } from 'mongoose';
 
 export class TransactionsService {
-  static async findFromRamp(userId: string): Promise<RampTransaction[]> {
+  static async findFromRamp(userId: ObjectId): Promise<RampTransaction[]> {
     try {
       const token = await getRampToken();
       const rampUserId = await getRampUserId(userId);
@@ -40,7 +41,7 @@ export class TransactionsService {
     }
   }
 
-  static async notSynced(userId: string): Promise<RampTransaction[]> {
+  static async notSynced(userId: ObjectId): Promise<RampTransaction[]> {
     try {
       const transactions = await TransactionsService.findFromRamp(userId);
 
@@ -58,6 +59,48 @@ export class TransactionsService {
         error,
         `Failed to find new transactions from ramp for user ${userId}`
       );
+    }
+  }
+
+  static async syncTransactions(userId: ObjectId): Promise<Transaction[]> {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      // ! We get the transactions for the user that are not in our db (that are not synced yet, so they are new transactions)
+      const notSyncedTransactions = await TransactionsService.notSynced(userId);
+
+      const newTransactions = notSyncedTransactions.map((t) => {
+        return {
+          ramp_amount: t.amount,
+          ramp_currency_code: t.currency_code,
+          ramp_transaction_id: t.id,
+          ramp_user_transaction_time: t.user_transaction_time,
+          user: userId,
+        };
+      });
+
+      // ! We save the new transactions in our db
+      const savedTransactions = await TransactionModel.insertMany(
+        newTransactions,
+        {
+          session,
+        }
+      );
+
+      // TODO: Update the user balance
+      // ! We need to update the user crypto balance for the exact amount of the transactions in the exact ramp_user_transaction_time
+      await session.commitTransaction();
+
+      return savedTransactions;
+    } catch (error) {
+      await session.abortTransaction();
+      handleError(
+        error,
+        `Failed to sync transactions from ramp for user ${userId}`
+      );
+    } finally {
+      session.endSession();
     }
   }
 }

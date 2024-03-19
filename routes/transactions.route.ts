@@ -27,4 +27,11 @@ router.get(
   transactionsController.getNotSyncedByCurrentUser
 );
 
+router.post(
+  '/sync-by-current-user',
+  authorize,
+  logRequest,
+  transactionsController.syncByCurrentUser
+);
+
 export default router;

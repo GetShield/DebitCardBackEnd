@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongoose';
+
 export * from './token';
 export * from './user';
 export * from './cards';
@@ -9,6 +11,6 @@ export * from './wallet';
 
 export type Balance = {
   currency: string;
-  userId: string;
+  userId: ObjectId;
   amount: number;
 };
