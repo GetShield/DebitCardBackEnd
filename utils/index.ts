@@ -14,6 +14,7 @@ import {
 const CoinMarketCap = require('coinmarketcap-api');
 import { baseDebitCards } from '..';
 import { Balance, Price } from '../types';
+import ccxt from 'ccxt';
 
 export async function getRampToken() {
   const endpoint = `${RAMP_API_URL}/token`;
@@ -177,5 +178,17 @@ export function handleHttpError(
 export function validateResponse(response: any, message: string) {
   if (!response.ok) {
     throw new Error(`${message}: ${response.status} - ${response.statusText}`);
+  }
+}
+
+export async function getHistoricPrice(ticker: string, dateStr: string) {
+  try {
+    let exchange = new ccxt.binance();
+    let timestamp = new Date(dateStr).getTime();
+    let data = await exchange.fetchOHLCV(`${ticker}/USDT`, '1m', timestamp, 1);
+
+    return data[0][1];
+  } catch (err) {
+    throw err;
   }
 }

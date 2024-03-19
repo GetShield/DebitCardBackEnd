@@ -3,7 +3,6 @@ import { Request, Response } from 'express';
 import logger from 'node-color-log';
 import mongoose from 'mongoose';
 import TxReceipt from '../models/txReceipt.model';
-
 import { Balance } from '../types';
 import { getExchangeRate, getRampUserId, handleHttpError } from '../utils';
 import { LimitsService } from '../services/limits.service';
