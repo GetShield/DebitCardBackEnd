@@ -181,6 +181,7 @@ export function validateResponse(response: any, message: string) {
   }
 }
 
+// TODO: Need to validate ticker is a supported currency
 export async function getHistoricPrice(ticker: string, dateStr: string) {
   try {
     let exchange = new ccxt.binance();
