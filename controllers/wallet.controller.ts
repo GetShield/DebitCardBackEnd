@@ -211,7 +211,7 @@ const WalletController = {
     const session = await mongoose.startSession();
     session.startTransaction();
 
-    const address = req.body?.address.toLowerCase();
+    const address = req.body?.address;
     console.log('address: ', address);
 
     try {
