@@ -6,6 +6,7 @@ import WalletModel from '../models/wallet.model';
 import { TxData } from '../types/txData';
 import { BalanceService } from '../services';
 import { handleError, handleHttpError } from '../utils';
+import { ObjectId } from 'mongoose';
 
 const BalanceController = {
   async getAll(req: Request, res: Response) {
@@ -35,14 +36,20 @@ const BalanceController = {
         { upsert: true }
       );
     } catch (error) {
-      return error;
+      handleError(error, 'Error updating balance');
     }
   },
 
   async updateInside(data: TxData) {
     try {
+      console.log({ data });
+
+      console.log(data.from);
+
       const blockchains = await BlockchainModel.find({ chain: data.chain });
       const wallets = await WalletModel.find({ address: data.from });
+
+      console.log({ wallets });
 
       await BalanceController.updateBalance(
         data.amount,
@@ -56,18 +63,21 @@ const BalanceController = {
         wallet: wallets[0]._id,
       }).populate({ path: 'wallet', select: 'user' });
 
+      console.log({ balance });
+
       if (!balance) {
         throw new Error('Balance not found');
       }
 
       const walletWithUser: any = balance.wallet;
+      console.log({ walletWithUser });
       return {
         currency: balance.currency.toString(),
         userId: walletWithUser.user,
         amount: Number(balance.amount),
       };
     } catch (error) {
-      return error;
+      handleError(error, 'Error updating balance inside');
     }
   },
 
@@ -174,7 +184,7 @@ const BalanceController = {
 
   async getByUser(req: Request, res: Response) {
     try {
-      const userId = req.params.userId;
+      const userId = req.params.userId as any;
       if (!userId) {
         handleHttpError(new Error('User not set!'), res, 400);
         return;

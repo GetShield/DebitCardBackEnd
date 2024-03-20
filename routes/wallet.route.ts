@@ -16,9 +16,7 @@ router.get(
   logRequest,
   walletController.getHistoricalPrice
 );
-
 router.get('/shield', authorize, logRequest, walletController.shield);
-
 router.get('/', authorize, logRequest, walletController.getAll);
 router.get(
   '/get-by-blockchain/:blockchain',
@@ -37,7 +35,6 @@ router.get(
   logRequest,
   walletController.getWalletByCurrentUser
 );
-
 router.get(
   '/:address',
   authorize,

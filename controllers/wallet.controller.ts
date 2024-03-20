@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import Wallet from '../models/wallet.model';
 import Blockchain from '../models/blockchain.model';
 import User from '../models/user.model';
-import { SHIELD_USERID } from '../config';
+import { SHIELD_USERID, TOKENS } from '../config';
 import {
   getAllExchangeRates,
   getHistoricPrice,
@@ -13,6 +13,7 @@ import {
 } from '../utils';
 
 import { validateWalletAddress } from '../utils';
+import { WalletService } from '../services';
 
 const WalletController = {
   async shield(req: Request, res: Response) {
@@ -23,15 +24,9 @@ const WalletController = {
     }
 
     try {
-      const wallet = await Wallet.find({ user: userId }).populate(
-        'blockchains'
-      );
-      if (wallet === null) {
-        handleHttpError(new Error('No wallet found for this user!'), res, 404);
-        return;
-      }
+      const wallets = await WalletService.getUserWallets(userId);
 
-      res.send({ wallet });
+      res.send({ wallets });
     } catch (err) {
       handleHttpError(err, res);
     }
@@ -108,42 +103,34 @@ const WalletController = {
   },
 
   async getWalletByUser(req: Request, res: Response) {
-    if (req.params.userId === undefined) {
+    const { userId } = req.params;
+
+    if (userId === undefined) {
       handleHttpError(new Error('User is empty!'), res, 400);
       return;
     }
 
     try {
-      const wallet = await Wallet.find({ user: req.params.userId }).populate(
-        'blockchains'
-      );
-      if (wallet === null) {
-        handleHttpError(new Error('No wallet found for this user!'), res, 404);
-        return;
-      }
+      const wallets = await WalletService.getUserWallets(userId);
 
-      res.send({ wallet });
+      res.send({ wallets });
     } catch (err) {
       handleHttpError(err, res);
     }
   },
 
   async getWalletByCurrentUser(req: Request, res: Response) {
+    const userId = req.body.user.id;
+
     if (req.body.user === undefined) {
       handleHttpError(new Error('User is empty!'), res, 400);
       return;
     }
 
     try {
-      const wallet = await Wallet.find({ user: req.body.user.id }).populate(
-        'blockchains'
-      );
-      if (wallet === null) {
-        handleHttpError(new Error('No wallet found for this user!'), res, 404);
-        return;
-      }
+      const wallets = await WalletService.getUserWallets(userId);
 
-      res.send({ wallet });
+      res.send({ wallets });
     } catch (err) {
       handleHttpError(err, res);
     }
@@ -216,8 +203,11 @@ const WalletController = {
     const session = await mongoose.startSession();
     session.startTransaction();
 
-    const address = req.body?.address;
-    console.log('address: ', address);
+    let address = req.body?.address;
+
+    if (address.startsWith('0x')) {
+      req.body.address = address.toLowerCase();
+    }
 
     try {
       // get blockchain ids
@@ -337,12 +327,25 @@ const WalletController = {
   async getHistoricalPrice(req: Request, res: Response) {
     const { ticker, date } = req.body;
 
-    if (ticker === undefined) {
-      handleHttpError(new Error('Ticker can not be empty!'), res, 400);
+    if (!ticker || !date) {
+      handleHttpError(
+        new Error('Ticker and date are required fields!'),
+        res,
+        400
+      );
       return;
     }
-    if (date === undefined) {
-      handleHttpError(new Error('Date can not be empty!'), res, 400);
+
+    if (TOKENS.indexOf(ticker) === -1) {
+      handleHttpError(
+        new Error(
+          `Invalid ticker! The ticker must be one of the following: ${TOKENS.join(
+            ', '
+          )}`
+        ),
+        res,
+        400
+      );
       return;
     }
 

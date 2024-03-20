@@ -52,9 +52,6 @@ const WebhookController = {
         balanceData
       )) as Balance;
 
-      await session.commitTransaction();
-      session.endSession();
-
       let rampUserId = await getRampUserId(result.userId);
 
       const updateLimitRes = await LimitsService.updateUserSpendLimits(
@@ -63,6 +60,7 @@ const WebhookController = {
       );
 
       console.log('updateLimitRes: ', updateLimitRes);
+      await session.commitTransaction();
 
       res.status(200).send();
     } catch (error) {
@@ -71,6 +69,8 @@ const WebhookController = {
         session.endSession();
         handleHttpError(error, res);
       }
+    } finally {
+      session.endSession();
     }
   },
 };

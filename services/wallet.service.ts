@@ -1,6 +1,7 @@
 import config from '../config';
 import { Price } from '../types';
 import { handleError } from '../utils';
+import Wallet from '../models/wallet.model';
 
 const CoinMarketCap = require('coinmarketcap-api');
 const client = new CoinMarketCap(config.CMC_API_KEY);
@@ -18,6 +19,24 @@ export class WalletService {
       return priceArr;
     } catch (error) {
       handleError(error, `Failed to get prices`);
+    }
+  }
+
+  static async getUserWallets(userId: string) {
+    try {
+      const wallets = await Wallet.find({ user: userId }).populate(
+        'blockchains'
+      );
+
+      console.log({ wallets, userId });
+
+      if (!wallets) {
+        throw new Error(`No wallets found for user ${userId}`);
+      }
+
+      return wallets;
+    } catch (error) {
+      handleError(error, `Failed to get user wallets`);
     }
   }
 }

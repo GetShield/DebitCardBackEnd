@@ -189,10 +189,16 @@ export function validateResponse(response: any, message: string) {
   }
 }
 
-// TODO: Need to validate ticker is a supported currency
 export async function getHistoricPrice(ticker: string, dateStr: string) {
   try {
-    console.log({ ticker, dateStr });
+    if (TOKENS.indexOf(ticker) === -1) {
+      throw new Error(
+        `Invalid ticker! The ticker must be one of the following: ${TOKENS.join(
+          ', '
+        )}`
+      );
+    }
+
     let exchange = new ccxt.binance();
     let timestamp = new Date(dateStr).getTime();
     let data = await exchange.fetchOHLCV(`${ticker}/USDT`, '1m', timestamp, 1);

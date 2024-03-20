@@ -1,13 +1,16 @@
+import mongoose, { ObjectId } from 'mongoose';
+
 import { RampTransaction, RampTransactionsResponse } from '../types';
 import {
+  getHistoricPrice,
   getRampToken,
   getRampUserId,
   handleError,
   validateResponse,
 } from '../utils';
-import { RAMP_API_URL } from '../config';
+import { RAMP_API_URL, Token } from '../config';
 import TransactionModel, { Transaction } from '../models/transaction.model';
-import mongoose, { ObjectId } from 'mongoose';
+import { BalanceService } from './balance.service';
 
 export class TransactionsService {
   static async findFromRamp(userId: ObjectId): Promise<RampTransaction[]> {
@@ -67,6 +70,11 @@ export class TransactionsService {
     session.startTransaction();
 
     try {
+      // ! We get the user balances from the db
+      const balances = BalanceService.getBalancesByUserId(userId);
+
+      // ! We decide what crypto to decrease from the user balances
+
       // ! We get the transactions for the user that are not in our db (that are not synced yet, so they are new transactions)
       const notSyncedTransactions = await TransactionsService.notSynced(userId);
 
@@ -77,8 +85,28 @@ export class TransactionsService {
           ramp_transaction_id: t.id,
           ramp_user_transaction_time: t.user_transaction_time,
           user: userId,
+          // with the new stuffs
         };
       });
+
+      // TODO: Update the user balance
+      // ! We need to update the user crypto balance for the exact amount of the transactions in the exact ramp_user_transaction_time
+      const token: Token = 'ETH'; // ! We need to get the token that the user has in his wallet
+      const transactionsInCrypto = await Promise.all(
+        newTransactions.map(async (t) => {
+          const price = await getHistoricPrice(
+            token,
+            String(t.ramp_user_transaction_time)
+          );
+          return {
+            token,
+            date: t.ramp_user_transaction_time,
+            price,
+          };
+        })
+      );
+
+      // pass session whe updating the user balances.
 
       // ! We save the new transactions in our db
       const savedTransactions = await TransactionModel.insertMany(
@@ -88,8 +116,8 @@ export class TransactionsService {
         }
       );
 
-      // TODO: Update the user balance
-      // ! We need to update the user crypto balance for the exact amount of the transactions in the exact ramp_user_transaction_time
+      console.log({ transactionsInCrypto });
+
       await session.commitTransaction();
 
       return savedTransactions;

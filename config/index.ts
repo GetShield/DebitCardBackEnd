@@ -16,7 +16,8 @@ export const RAMP_SECRET_ID = process.env.RAMP_SECRET_ID || '';
 export const RAMP_API_URL = process.env.RAMP_API_URL || '';
 export const SHIELD_USERID = process.env.SHIELD_USERID || '';
 export const TRON_API_KEY = process.env.TRON_API_KEY || '';
-export const TATUM_EXCHANGE_RATE_URL = process.env.TATUM_EXCHANGE_RATE_URL || '';
+export const TATUM_EXCHANGE_RATE_URL =
+  process.env.TATUM_EXCHANGE_RATE_URL || '';
 
 export const CHAIN_TYPE = {
   BTC: 'bitcoin',
@@ -101,6 +102,8 @@ export const TOKEN_MAP = {
 
 export const TOKENS = ['BTC', 'ETH', 'USDT', 'USDC', 'USDD', 'TRX'];
 
+export type Token = 'BTC' | 'ETH' | 'USDT' | 'USDC' | 'USDD' | 'TRX';
+
 export const PLATFORM_ADDRESSES = {
   'bitcoin-mainnet': 'bc1qv06tjpcqmmfprv9m226ue52xvljg93pa5knsly',
   'bitcoin-testnet': 'tb1qnz7l8tujzsty53pwvgsr2v4j3we2nlh0tp424d',
@@ -129,5 +132,5 @@ export default {
   SHIELD_USERID,
   RAMP_API_URL,
   TRON_API_KEY,
-  TATUM_EXCHANGE_RATE_URL
+  TATUM_EXCHANGE_RATE_URL,
 };

@@ -1,10 +1,11 @@
+import { ObjectId } from 'mongoose';
 import balanceModel from '../models/balance.model';
 import walletModel from '../models/wallet.model';
 import { Balance, Price } from '../types';
 import { handleError } from '../utils';
 
 export class BalanceService {
-  static async getBalancesByUserId(userId: string): Promise<Balance[]> {
+  static async getBalancesByUserId(userId: ObjectId): Promise<Balance[]> {
     try {
       // Find wallets for the user
       const wallets = await walletModel.find({ user: userId });
@@ -24,7 +25,7 @@ export class BalanceService {
     }
   }
 
-  static async getTotalBalanceInUSD(userId: string, prices: Price[]) {
+  static async getTotalBalanceInUSD(userId: ObjectId, prices: Price[]) {
     try {
       const balances = await this.getBalancesByUserId(userId);
 
