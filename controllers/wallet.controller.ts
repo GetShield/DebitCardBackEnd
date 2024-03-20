@@ -5,7 +5,12 @@ import Wallet from '../models/wallet.model';
 import Blockchain from '../models/blockchain.model';
 import User from '../models/user.model';
 import { SHIELD_USERID } from '../config';
-import { getAllExchangeRates, handleError, handleHttpError } from '../utils';
+import {
+  getAllExchangeRates,
+  getHistoricPrice,
+  handleError,
+  handleHttpError,
+} from '../utils';
 
 import { validateWalletAddress } from '../utils';
 
@@ -212,6 +217,7 @@ const WalletController = {
     session.startTransaction();
 
     const address = req.body?.address;
+    console.log('address: ', address);
 
     try {
       // get blockchain ids
@@ -323,6 +329,33 @@ const WalletController = {
     try {
       const priceArr = await getAllExchangeRates();
       res.send({ data: priceArr });
+    } catch (err) {
+      handleHttpError(err, res);
+    }
+  },
+
+  async getHistoricalPrice(req: Request, res: Response) {
+    const { ticker, date } = req.body;
+
+    if (ticker === undefined) {
+      handleHttpError(new Error('Ticker can not be empty!'), res, 400);
+      return;
+    }
+    if (date === undefined) {
+      handleHttpError(new Error('Date can not be empty!'), res, 400);
+      return;
+    }
+
+    try {
+      const price = await getHistoricPrice(ticker, date);
+
+      const result = {
+        ticker,
+        date,
+        price,
+      };
+
+      res.send(result);
     } catch (err) {
       handleHttpError(err, res);
     }

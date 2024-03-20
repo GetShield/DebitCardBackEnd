@@ -16,6 +16,7 @@ import { Balance, Price } from '../types';
 import { ObjectId } from 'mongoose';
 
 const CoinMarketCap = require('coinmarketcap-api');
+import ccxt from 'ccxt';
 
 export async function getRampToken() {
   try {
@@ -185,5 +186,19 @@ export function handleHttpError(
 export function validateResponse(response: any, message: string) {
   if (!response.ok) {
     throw new Error(`${message}: ${response.status} - ${response.statusText}`);
+  }
+}
+
+// TODO: Need to validate ticker is a supported currency
+export async function getHistoricPrice(ticker: string, dateStr: string) {
+  try {
+    console.log({ ticker, dateStr });
+    let exchange = new ccxt.binance();
+    let timestamp = new Date(dateStr).getTime();
+    let data = await exchange.fetchOHLCV(`${ticker}/USDT`, '1m', timestamp, 1);
+
+    return data[0][1];
+  } catch (err) {
+    throw err;
   }
 }
