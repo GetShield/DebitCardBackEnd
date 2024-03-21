@@ -14,3 +14,9 @@ export type Balance = {
   userId: ObjectId;
   amount: number;
 };
+
+export interface CryptoDeduction {
+  ticker: string;
+  deductAmount: number;
+  rate: number;
+}

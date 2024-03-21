@@ -2,7 +2,8 @@ const TronWeb = require('tronweb'); //there is no types for tronweb
 import { ethers } from 'ethers';
 import { Response } from 'express';
 import { validate } from 'bitcoin-address-validation';
-
+import { CryptoDeduction } from '../types';
+import logger from 'node-color-log';
 import { CHAIN_TYPE } from '../config';
 import {
   RAMP_CLIENT_ID,
@@ -207,4 +208,50 @@ export async function getHistoricPrice(ticker: string, dateStr: string) {
   } catch (err) {
     throw err;
   }
+}
+
+
+export async function calculateCryptoDeductions(
+  rampUsdAmount: number,
+  wallets: Array<{ ticker: string; amount: number }>
+): Promise<Array<CryptoDeduction>> {
+  let deductions: Array<CryptoDeduction> = [];
+  let value = rampUsdAmount;
+  const exchangeRatesCache: Record<string, number> = {};
+
+  for (const wallet of wallets) {
+    if (value === 0) break;
+    if (wallet.amount <= 0) continue;
+
+    if (!exchangeRatesCache[wallet.ticker]) {
+      try {
+        const exchangeRate = await getExchangeRate(wallet.ticker);
+        exchangeRatesCache[wallet.ticker] = exchangeRate?.price;
+      } catch (error) {
+        logger.error(`Failed to fetch exchange rate for ${wallet.ticker}`);
+        throw error;
+      }
+    }
+
+    const rate = exchangeRatesCache[wallet.ticker];
+    const walletUsdValue = rate * wallet.amount;
+
+    if (walletUsdValue >= value) {
+      deductions.push({
+        ticker: wallet.ticker,
+        deductAmount: value / rate,
+        rate,
+      });
+      break;
+    } else {
+      deductions.push({
+        ticker: wallet.ticker,
+        deductAmount: wallet.amount,
+        rate,
+      });
+      value -= walletUsdValue;
+    }
+  }
+
+  return deductions;
 }

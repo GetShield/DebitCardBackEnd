@@ -7,6 +7,7 @@ import {
   getRampUserId,
   handleError,
   validateResponse,
+  calculateCryptoDeductions,
 } from '../utils';
 import { RAMP_API_URL, Token } from '../config';
 import TransactionModel, { Transaction } from '../models/transaction.model';
@@ -71,9 +72,15 @@ export class TransactionsService {
 
     try {
       // ! We get the user balances from the db
-      const balances = BalanceService.getBalancesByUserId(userId);
-
-      // ! We decide what crypto to decrease from the user balances
+      const balances = await BalanceService.getBalancesByUserId(userId);
+      let walletBalances = await Promise.all(
+        balances.map(async (balance) => {
+          return {
+            ticker: balance.currency,
+            amount: balance.amount,
+          };
+        })
+      );
 
       // ! We get the transactions for the user that are not in our db (that are not synced yet, so they are new transactions)
       const notSyncedTransactions = await TransactionsService.notSynced(userId);
@@ -88,6 +95,12 @@ export class TransactionsService {
           // with the new stuffs
         };
       });
+
+      // ! We decide what crypto to decrease from the user balances
+      // let cryptoDeductions = await calculateCryptoDeductions(
+      //   totalRampAmount, // this should be the total value of their unsynced ramp USD amount
+      //   walletBalances
+      // );
 
       // TODO: Update the user balance
       // ! We need to update the user crypto balance for the exact amount of the transactions in the exact ramp_user_transaction_time
