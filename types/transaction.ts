@@ -1,3 +1,25 @@
+import { Types } from 'mongoose';
+
+import { IBlockchain } from './blockchain';
+
+export interface CryptoDeduction {
+  ticker: string;
+  amount: number;
+  blockchain: Types.ObjectId | IBlockchain;
+  exchangeRate: number;
+  usdValue: number;
+}
+
+export interface Transaction {
+  crypto_deductions: CryptoDeduction[];
+  ramp_amount: number;
+  ramp_currency_code: string;
+  ramp_transaction_id: string;
+  ramp_user_transaction_time: string;
+  user: Types.ObjectId;
+}
+
+// Ramp types
 export interface RampTransactionsResponse {
   page: Page;
   data: RampTransaction[];

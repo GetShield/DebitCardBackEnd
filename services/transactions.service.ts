@@ -1,6 +1,10 @@
 import mongoose, { ObjectId } from 'mongoose';
 
-import { RampTransaction, RampTransactionsResponse } from '../types';
+import {
+  RampTransaction,
+  RampTransactionsResponse,
+  Transaction,
+} from '../types';
 import {
   getHistoricPrice,
   getRampToken,
@@ -10,7 +14,7 @@ import {
   calculateCryptoDeductions,
 } from '../utils';
 import { RAMP_API_URL, Token } from '../config';
-import TransactionModel, { Transaction } from '../models/transaction.model';
+import TransactionModel from '../models/transaction.model';
 import { BalanceService } from './balance.service';
 
 export class TransactionsService {
@@ -85,6 +89,11 @@ export class TransactionsService {
       // ! We get the transactions for the user that are not in our db (that are not synced yet, so they are new transactions)
       const notSyncedTransactions = await TransactionsService.notSynced(userId);
 
+      const totalRampAmount = notSyncedTransactions.reduce(
+        (acc, t) => acc + t.amount,
+        0
+      );
+
       const newTransactions = notSyncedTransactions.map((t) => {
         return {
           ramp_amount: t.amount,
@@ -97,10 +106,12 @@ export class TransactionsService {
       });
 
       // ! We decide what crypto to decrease from the user balances
-      // let cryptoDeductions = await calculateCryptoDeductions(
-      //   totalRampAmount, // this should be the total value of their unsynced ramp USD amount
-      //   walletBalances
-      // );
+      let cryptoDeductions = await calculateCryptoDeductions(
+        totalRampAmount, // this should be the total value of their unsynced ramp USD amount
+        balances
+      );
+
+      console.log({ cryptoDeductions });
 
       // TODO: Update the user balance
       // ! We need to update the user crypto balance for the exact amount of the transactions in the exact ramp_user_transaction_time

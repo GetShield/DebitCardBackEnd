@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 import Wallet from '../models/wallet.model';
 import Blockchain from '../models/blockchain.model';
@@ -211,7 +211,7 @@ const WalletController = {
 
     try {
       // get blockchain ids
-      let blockchainIds = [];
+      let blockchainIds: Types.ObjectId[] = [];
       let chainType: String = '';
       for (let blockchainName of req.body.blockchains) {
         const blockchain = await Blockchain.findOne({

@@ -1,7 +1,9 @@
 import { ethers } from 'ethers';
 import logger from 'node-color-log';
-import ABI from '../abis/ERC20Abi.json';
+
 import { CHAIN_MAP, TOKEN_MAP, TAGET_WALLET_ADDRESS } from '../config';
+import { TxData } from '../types';
+import ABI from '../abis/ERC20Abi.json';
 import BalanceController from '../controllers/balance.controller';
 import TxHashController from '../controllers/txHash.controller';
 
@@ -45,12 +47,13 @@ export const fetchEvmEvents = async function (blockchain: string) {
           processedTransactions.set(tx.hash, true);
           try {
             if (tx.value > 0 && tx.to?.toLowerCase() === targetWallet) {
-              let balanceData = {
-                blockchain: blockchain,
-                walletAddress: tx.from,
-                to: tx.to,
+              let balanceData: TxData = {
                 amount: Number(ethers.formatEther(tx.value)),
-                crypto: 'ETH',
+                blockNumber: blockNumber,
+                chain: blockchain,
+                currency: 'ETH',
+                from: tx.from,
+                to: tx.to,
                 txHash: tx.hash,
               };
 
@@ -71,7 +74,7 @@ export const fetchEvmEvents = async function (blockchain: string) {
                 balanceData['amount'] = newAmount;
 
                 logger.info(
-                  `[${networkName}] New Amount: ${newAmount} ${balanceData.crypto}`
+                  `[${networkName}] New Amount: ${newAmount} ${balanceData.currency}`
                 );
                 await BalanceController.updateInside(balanceData);
                 logger.info('Balance Updated');

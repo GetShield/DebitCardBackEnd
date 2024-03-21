@@ -2,7 +2,6 @@ const TronWeb = require('tronweb'); //there is no types for tronweb
 import { ethers } from 'ethers';
 import { Response } from 'express';
 import { validate } from 'bitcoin-address-validation';
-import { CryptoDeduction } from '../types';
 import logger from 'node-color-log';
 import { CHAIN_TYPE } from '../config';
 import {
@@ -13,7 +12,7 @@ import {
   CMC_API_KEY,
 } from '../config';
 import { baseDebitCards } from '..';
-import { Balance, Price } from '../types';
+import { Balance, CryptoDeduction, Price } from '../types';
 import { ObjectId } from 'mongoose';
 
 const CoinMarketCap = require('coinmarketcap-api');
@@ -210,48 +209,54 @@ export async function getHistoricPrice(ticker: string, dateStr: string) {
   }
 }
 
-
 export async function calculateCryptoDeductions(
   rampUsdAmount: number,
-  wallets: Array<{ ticker: string; amount: number }>
-): Promise<Array<CryptoDeduction>> {
-  let deductions: Array<CryptoDeduction> = [];
-  let value = rampUsdAmount;
-  const exchangeRatesCache: Record<string, number> = {};
+  balances: Balance[]
+): Promise<CryptoDeduction[]> {
+  try {
+    let deductions: CryptoDeduction[] = [];
+    let value = rampUsdAmount;
+    const exchangeRatesCache: Record<string, number> = {};
 
-  for (const wallet of wallets) {
-    if (value === 0) break;
-    if (wallet.amount <= 0) continue;
+    for (const balance of balances) {
+      if (value === 0) break;
+      if (balance.amount <= 0) continue;
 
-    if (!exchangeRatesCache[wallet.ticker]) {
-      try {
-        const exchangeRate = await getExchangeRate(wallet.ticker);
-        exchangeRatesCache[wallet.ticker] = exchangeRate?.price;
-      } catch (error) {
-        logger.error(`Failed to fetch exchange rate for ${wallet.ticker}`);
-        throw error;
+      if (!exchangeRatesCache[balance.currency]) {
+        try {
+          const exchangeRate = await getExchangeRate(balance.currency);
+          exchangeRatesCache[balance.currency] = exchangeRate?.price;
+        } catch (error) {
+          logger.error(`Failed to fetch exchange rate for ${balance.currency}`);
+          throw error;
+        }
+      }
+
+      const rate = exchangeRatesCache[balance.currency];
+      const walletUsdValue = rate * balance.amount;
+
+      if (walletUsdValue >= value) {
+        deductions.push({
+          ticker: balance.currency,
+          amount: value / rate,
+          exchangeRate: rate,
+          usdValue: value,
+          blockchain: balance.blockchain,
+        });
+        break;
+      } else {
+        deductions.push({
+          ticker: balance.currency,
+          amount: balance.amount,
+          exchangeRate: rate,
+          usdValue: walletUsdValue,
+          blockchain: balance.blockchain,
+        });
+        value -= walletUsdValue;
       }
     }
-
-    const rate = exchangeRatesCache[wallet.ticker];
-    const walletUsdValue = rate * wallet.amount;
-
-    if (walletUsdValue >= value) {
-      deductions.push({
-        ticker: wallet.ticker,
-        deductAmount: value / rate,
-        rate,
-      });
-      break;
-    } else {
-      deductions.push({
-        ticker: wallet.ticker,
-        deductAmount: wallet.amount,
-        rate,
-      });
-      value -= walletUsdValue;
-    }
+    return deductions;
+  } catch (error) {
+    handleError(error, 'An error occurred while calculating crypto deductions');
   }
-
-  return deductions;
 }

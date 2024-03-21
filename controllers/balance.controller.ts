@@ -6,7 +6,6 @@ import WalletModel from '../models/wallet.model';
 import { TxData } from '../types/txData';
 import { BalanceService } from '../services';
 import { handleError, handleHttpError } from '../utils';
-import { ObjectId } from 'mongoose';
 
 const BalanceController = {
   async getAll(req: Request, res: Response) {
@@ -42,20 +41,14 @@ const BalanceController = {
 
   async updateInside(data: TxData) {
     try {
-      console.log({ data });
-
-      console.log(data.from);
-
       const blockchains = await BlockchainModel.find({ chain: data.chain });
       const wallets = await WalletModel.find({ address: data.from });
-
-      console.log({ wallets });
 
       await BalanceController.updateBalance(
         data.amount,
         data.currency,
-        blockchains[0]._id,
-        wallets[0]._id
+        blockchains[0]._id.toString(),
+        wallets[0]._id.toString()
       );
 
       let balance = await BalanceModel.findOne({

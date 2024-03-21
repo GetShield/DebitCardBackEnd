@@ -1,24 +1,21 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
-interface ITxHash extends Document {
-  txHash: String;
-  identificationDate: Date;
-  blockchain: Schema.Types.ObjectId;
-}
+import { ITxHash } from '../types/txHash';
 
-const TxHash = new Schema(
+const TxHash = new Schema<ITxHash>(
   {
-    txHash: { type: String, required: true },
-    identificationDate: { type: Date, required: true },
     blockchain: {
       type: Schema.Types.ObjectId,
       ref: 'blockchains',
       required: true,
     },
+    identificationDate: { type: Date, required: true },
+    txHash: { type: String, required: true },
   },
   {
     collection: 'txHashes',
+    timestamps: true,
   }
 );
 
-export default mongoose.model<ITxHash>('txHashes', TxHash);
+export default model<ITxHash>('txHashes', TxHash);

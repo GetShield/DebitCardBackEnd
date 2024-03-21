@@ -1,6 +1,5 @@
 import userModel from '../models/user.model';
-import { LimitUpdateBody } from '../types';
-import { getRampUserId, handleError } from '../utils';
+import { getRampUserId } from '../utils';
 import { BalanceService } from './balance.service';
 import { LimitsService } from './limits.service';
 import { WalletService } from './wallet.service';

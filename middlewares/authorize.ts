@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import {JWT_SECRET} from "../config"
+
+import { JWT_SECRET } from '../config';
+
 const jwt = require('jsonwebtoken');
 
 function authorize(req: Request, res: Response, next: NextFunction) {

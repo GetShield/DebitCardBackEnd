@@ -1,9 +1,9 @@
 export interface TxData {
-  chain: string;
   amount: any;
+  blockNumber: Number;
+  chain: string;
+  currency: string;
   from: string;
   to: string;
-  blockNumber: Number;
   txHash: string;
-  currency: string;
 }

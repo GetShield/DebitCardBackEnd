@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import { User } from '../types';
+import logger from 'node-color-log';
+
+import { IUser, NewUser } from '../types';
 import { DebitCardService } from '../services/debit-cards.service';
 import UserModel from '../models/user.model';
-import logger from 'node-color-log';
 import { JWT_SECRET } from '../config';
 import { handleHttpError } from '../utils';
 
@@ -63,19 +64,17 @@ export default {
       const salt = bcrypt.genSaltSync(10);
       const hashed_password = bcrypt.hashSync(password, salt);
 
-      const newUser: User = {
+      const newUser: NewUser = {
         email: email,
         password: hashed_password,
         user_name: user_name,
-        btc_wallet: '',
-        ether_wallet: '',
-        tron_wallet: '',
+        wallets: [],
       };
       const user = new UserModel(newUser);
       await user.save();
 
       await DebitCardService.create({
-        userId: user._id,
+        userId: user._id.toString(),
         rampUserId: '',
         userName: user_name,
         userEmail: email,

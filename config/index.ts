@@ -2,20 +2,20 @@ import * as dotenv from 'dotenv';
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
-export const PORT = process.env.PORT || 8080;
-export const MONGOURI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
-export const CMC_API_KEY = process.env.CMC_API_KEY || '';
-export const MORALIS_API_KEY = process.env.MORALIS_API_KEY || '';
-export const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
-export const TATUM_API_KEY = process.env.TATUM_API_KEY || '';
-export const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || '';
 export const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || '';
+export const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || '';
+export const CMC_API_KEY = process.env.CMC_API_KEY || '';
 export const JWT_SECRET = process.env.JWT_SECRET || '';
+export const MONGOURI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+export const MORALIS_API_KEY = process.env.MORALIS_API_KEY || '';
+export const PORT = process.env.PORT || 8080;
+export const RAMP_API_URL = process.env.RAMP_API_URL || '';
 export const RAMP_CLIENT_ID = process.env.RAMP_CLIENT_ID || '';
 export const RAMP_SECRET_ID = process.env.RAMP_SECRET_ID || '';
-export const RAMP_API_URL = process.env.RAMP_API_URL || '';
 export const SHIELD_USERID = process.env.SHIELD_USERID || '';
+export const TATUM_API_KEY = process.env.TATUM_API_KEY || '';
 export const TRON_API_KEY = process.env.TRON_API_KEY || '';
+export const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
 export const TATUM_EXCHANGE_RATE_URL =
   process.env.TATUM_EXCHANGE_RATE_URL || '';
 
@@ -114,23 +114,23 @@ export const PLATFORM_ADDRESSES = {
 };
 
 export default {
-  PORT,
-  MONGOURI,
-  CMC_API_KEY,
-  MORALIS_API_KEY,
-  CHAIN_TYPE,
   CHAIN_MAP,
-  TOKEN_MAP,
-  TOKENS,
-  TAGET_WALLET_ADDRESS,
-  PLATFORM_ADDRESSES,
-  TATUM_API_KEY,
-  WEBHOOK_URL,
+  CHAIN_TYPE,
+  CMC_API_KEY,
   JWT_SECRET,
+  MONGOURI,
+  MORALIS_API_KEY,
+  PLATFORM_ADDRESSES,
+  PORT,
+  RAMP_API_URL,
   RAMP_CLIENT_ID,
   RAMP_SECRET_ID,
   SHIELD_USERID,
-  RAMP_API_URL,
-  TRON_API_KEY,
+  TAGET_WALLET_ADDRESS,
+  TATUM_API_KEY,
   TATUM_EXCHANGE_RATE_URL,
+  TOKEN_MAP,
+  TOKENS,
+  TRON_API_KEY,
+  WEBHOOK_URL,
 };

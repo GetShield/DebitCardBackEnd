@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+
 import TxReceipt from '../models/txReceipt.model';
 
 async function validate(req: Request, res: Response, next: NextFunction) {

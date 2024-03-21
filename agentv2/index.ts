@@ -1,20 +1,21 @@
 import {
-  TatumSDK,
-  Ethereum,
   Bitcoin,
-  Tron,
+  Ethereum,
   Network,
-  ResponseDto,
   NotificationSubscription,
+  ResponseDto,
   Status,
+  TatumSDK,
+  Tron,
 } from '@tatumio/tatum';
 import logger from 'node-color-log';
+
 import { WEBHOOK_URL, TATUM_API_KEY, PLATFORM_ADDRESSES } from '../config';
 import {
+  Chain,
   SUPPORTED_CHAINS,
   SUPPORTED_MAINNET_NETWORKS,
   SUPPORTED_TESTNET_NETWORKS,
-  Chain,
 } from '../config/blockchain';
 
 const chainToTypeMap: {

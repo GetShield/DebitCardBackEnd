@@ -1,33 +1,26 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { ITxReceipt } from '../types';
 
-interface ITxReceipt extends Document {
-  txHash: String;
-  identificationDate: Date;
-  blockchain: Schema.Types.ObjectId;
-  blockNumber: Number;
-  exchangeRate: Number;
-  usdValue: Number;
-}
-
-const TxReceipt = new Schema(
+const TxReceipt = new Schema<ITxReceipt>(
   {
-    blockNumber: { type: Number, required: true },
-    txHash: { type: String, required: true },
-    from: { type: String, required: true },
-    to: { type: String, required: true },
     amount: { type: String, required: true },
-    exchangeRate: { type: Number, required: true },
-    usdValue: { type: Number, required: true },
-    identificationDate: { type: Date, required: true },
     blockchain: {
       type: Schema.Types.ObjectId,
       ref: 'blockchains',
       required: true,
     },
+    blockNumber: { type: Number, required: true },
+    exchangeRate: { type: Number, required: true },
+    from: { type: String, required: true },
+    identificationDate: { type: Date, required: true },
+    to: { type: String, required: true },
+    txHash: { type: String, required: true },
+    usdValue: { type: Number, required: true },
   },
   {
     collection: 'txReceipts',
+    timestamps: true,
   }
 );
 
-export default mongoose.model<ITxReceipt>('txReceipts', TxReceipt);
+export default model<ITxReceipt>('txReceipts', TxReceipt);

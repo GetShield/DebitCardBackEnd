@@ -1,29 +1,22 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
-export interface Transaction extends Document {
-  crypto_deductions: Array<{
-    blockchain: Schema.Types.ObjectId;
-    amount: String;
-    exchangeRate: Number;
-    usdValue: Number;
-  }>;
-  ramp_amount: Number;
-  ramp_currency_code: String;
-  ramp_transaction_id: String;
-  ramp_user_transaction_time: String;
-  user: Schema.Types.ObjectId;
-}
+import { CryptoDeduction, Transaction } from '../types';
 
-const TransactionModel: Schema = new Schema(
+const CryptoDeductionSchema: Schema = new Schema<CryptoDeduction>({
+  amount: { type: Number, required: true },
+  blockchain: {
+    type: Schema.Types.ObjectId,
+    ref: 'blockchains',
+    required: true,
+  },
+  exchangeRate: { type: Number, required: true },
+  ticker: { type: String, required: true },
+  usdValue: { type: Number, required: true },
+});
+
+const TransactionModel: Schema = new Schema<Transaction>(
   {
-    crypto_deductions: [
-      {
-        blockchain: { type: Schema.Types.ObjectId, ref: 'blockchains' },
-        amount: { type: String, required: true },
-        exchangeRate: { type: Number, required: true },
-        usdValue: { type: Number, required: true },
-      },
-    ],
+    crypto_deductions: [CryptoDeductionSchema],
     ramp_amount: { type: Number, required: true },
     ramp_currency_code: { type: String, required: true },
     ramp_transaction_id: { type: String, required: true, index: true },
@@ -41,4 +34,4 @@ const TransactionModel: Schema = new Schema(
   }
 );
 
-export default mongoose.model<Transaction>('transactions', TransactionModel);
+export default model<Transaction>('transactions', TransactionModel);
