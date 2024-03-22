@@ -1,9 +1,9 @@
 import { Types } from 'mongoose';
 
-import { IBlockchain } from './blockchain';
+import { Blockchain } from './blockchain';
 
 export interface ITxHash {
-  blockchain: Types.ObjectId | IBlockchain;
+  blockchain: Types.ObjectId | Blockchain;
   identificationDate: Date;
   txHash: String;
 }

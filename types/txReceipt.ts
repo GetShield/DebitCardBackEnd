@@ -1,10 +1,10 @@
 import { Types } from 'mongoose';
 
-import { IBlockchain } from './blockchain';
+import { Blockchain } from './blockchain';
 
 export interface ITxReceipt {
   amount: string;
-  blockchain: Types.ObjectId | IBlockchain;
+  blockchain: Types.ObjectId | Blockchain;
   blockNumber: number;
   exchangeRate: number;
   from: string;

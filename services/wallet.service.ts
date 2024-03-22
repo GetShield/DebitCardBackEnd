@@ -28,8 +28,6 @@ export class WalletService {
         'blockchains'
       );
 
-      console.log({ wallets, userId });
-
       if (!wallets) {
         throw new Error(`No wallets found for user ${userId}`);
       }

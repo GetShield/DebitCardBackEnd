@@ -1,8 +1,8 @@
-import { Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 import { IWallet } from './wallet';
 
-export interface IBlockchain {
+export interface Blockchain extends Document {
   chain: String;
   chainId: Number;
   chainType: String;

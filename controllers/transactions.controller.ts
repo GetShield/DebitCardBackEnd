@@ -45,8 +45,32 @@ const TransactionsController = {
 
       const transactions = await TransactionsService.syncTransactions(userId);
 
-      if (!transactions.length) {
+      if (!transactions.transactions.length) {
         return res.send({ message: 'No new transactions found' });
+      }
+
+      res.send(transactions);
+    } catch (error) {
+      handleHttpError(error, res);
+    }
+  },
+
+  async syncMockTransactionsByCurrentUser(req: Request, res: Response) {
+    try {
+      const userId = req.body.user.id;
+      const data = req.body.transactions;
+
+      if (!data || !data.length) {
+        return res.send({ message: 'No transactions provided' });
+      }
+
+      const transactions = await TransactionsService.syncMockTransactions(
+        userId,
+        data
+      );
+
+      if (!transactions.transactions.length) {
+        return res.send(transactions);
       }
 
       res.send(transactions);

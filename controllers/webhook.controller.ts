@@ -26,6 +26,10 @@ const WebhookController = {
         chain: txReceipt.chain,
       });
 
+      console.log({
+        txReceipt,
+      });
+
       let exchangeRate = Number((await getExchangeRate('ETH'))?.price);
       let usdValue = exchangeRate * Number(txReceipt.amount);
 
@@ -35,28 +39,35 @@ const WebhookController = {
         let result = (await getTransactionById(
           req.body.txId
         )) as OnchainReceipt;
-
+        console.log(result.data.item.senders);
         from = result.data.item.senders[0].address;
       }
 
-      let receipt = await TxReceipt.create({
-        txHash: txReceipt.txId,
-        from,
-        to: txReceipt.address,
-        blockchain: blockchain!.id,
-        amount: txReceipt.amount,
-        blockNumber: txReceipt.blockNumber,
-        identificationDate: new Date(),
-        exchangeRate,
-        usdValue,
-      });
+      let receipt = await TxReceipt.create(
+        [
+          {
+            txHash: txReceipt.txId,
+            from,
+            to: txReceipt.address,
+            blockchain: blockchain!.id,
+            amount: txReceipt.amount,
+            blockNumber: txReceipt.blockNumber,
+            identificationDate: new Date(),
+            exchangeRate,
+            usdValue,
+          },
+        ],
+        {
+          session,
+        }
+      );
 
       logger.info(`New TxReceipt created: ${receipt}`);
 
       let balanceData = {
         chain: txReceipt.chain,
         amount: ethers.formatEther(ethers.parseEther(txReceipt.amount)),
-        from: txReceipt.counterAddress,
+        from,
         to: txReceipt.address,
         blockNumber: txReceipt.blockNumber,
         txHash: txReceipt.txId,

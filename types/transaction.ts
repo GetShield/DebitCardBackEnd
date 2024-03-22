@@ -1,12 +1,12 @@
 import { Types } from 'mongoose';
 
-import { IBlockchain } from './blockchain';
+import { Blockchain } from './blockchain';
 
 export interface CryptoDeduction {
-  ticker: string;
   amount: number;
-  blockchain: Types.ObjectId | IBlockchain;
+  balance: Types.ObjectId | Blockchain;
   exchangeRate: number;
+  ticker: string;
   usdValue: number;
 }
 
@@ -106,3 +106,9 @@ interface AccountingCategory {
   category_name: string;
 }
 
+export interface SyncTransactionsResponse {
+  numberOfTransactions: number;
+  transactionsTotalUSD: number;
+  rampTotalUSD: number;
+  transactions: Transaction[];
+}

@@ -12,8 +12,14 @@ import {
   CMC_API_KEY,
 } from '../config';
 import { baseDebitCards } from '..';
-import { Balance, CryptoDeduction, Price } from '../types';
-import { ObjectId } from 'mongoose';
+import {
+  Balance,
+  CryptoDeduction,
+  ExchangeRate,
+  Price,
+  UserId,
+} from '../types';
+
 const https = require('https');
 
 const CoinMarketCap = require('coinmarketcap-api');
@@ -52,7 +58,7 @@ export async function getRampToken() {
   }
 }
 
-export async function getRampUserId(userId: ObjectId): Promise<string> {
+export async function getRampUserId(userId: UserId): Promise<string> {
   try {
     const records = await baseDebitCards
       .select({
@@ -130,23 +136,22 @@ export async function validateWalletAddress(
   }
 }
 
-export async function getExchangeRate(ticker: string) {
-  const client = new CoinMarketCap(CMC_API_KEY);
+export async function getExchangeRate(ticker: string): Promise<ExchangeRate> {
   try {
     const rates = await getAllExchangeRates();
-    for (const item of rates) {
-      if (item.name === ticker) {
-        return item;
-      }
+    const rate = rates.find((rate) => rate.name === ticker);
+
+    if (!rate) {
+      throw new Error(`Exchange rate for ${ticker} not found`);
     }
 
-    return null;
+    return rate;
   } catch (err) {
-    throw err;
+    handleError(err, 'An error occurred while executing getExchangeRate');
   }
 }
 
-export async function getAllExchangeRates() {
+export async function getAllExchangeRates(): Promise<ExchangeRate[]> {
   const client = new CoinMarketCap(CMC_API_KEY);
   try {
     const quotes = await client.getQuotes({ symbol: TOKENS });
@@ -158,7 +163,7 @@ export async function getAllExchangeRates() {
 
     return priceArr;
   } catch (err) {
-    throw err;
+    handleError(err, 'An error occurred while executing getAllExchangeRates');
   }
 }
 
@@ -207,58 +212,6 @@ export async function getHistoricPrice(ticker: string, dateStr: string) {
     return data[0][1];
   } catch (err) {
     throw err;
-  }
-}
-
-export async function calculateCryptoDeductions(
-  rampUsdAmount: number,
-  balances: Balance[]
-): Promise<CryptoDeduction[]> {
-  try {
-    let deductions: CryptoDeduction[] = [];
-    let value = rampUsdAmount;
-    const exchangeRatesCache: Record<string, number> = {};
-
-    for (const balance of balances) {
-      if (value === 0) break;
-      if (balance.amount <= 0) continue;
-
-      if (!exchangeRatesCache[balance.currency]) {
-        try {
-          const exchangeRate = await getExchangeRate(balance.currency);
-          exchangeRatesCache[balance.currency] = exchangeRate?.price;
-        } catch (error) {
-          logger.error(`Failed to fetch exchange rate for ${balance.currency}`);
-          throw error;
-        }
-      }
-
-      const rate = exchangeRatesCache[balance.currency];
-      const walletUsdValue = rate * balance.amount;
-
-      if (walletUsdValue >= value) {
-        deductions.push({
-          ticker: balance.currency,
-          amount: value / rate,
-          exchangeRate: rate,
-          usdValue: value,
-          blockchain: balance.blockchain,
-        });
-        break;
-      } else {
-        deductions.push({
-          ticker: balance.currency,
-          amount: balance.amount,
-          exchangeRate: rate,
-          usdValue: walletUsdValue,
-          blockchain: balance.blockchain,
-        });
-        value -= walletUsdValue;
-      }
-    }
-    return deductions;
-  } catch (error) {
-    handleError(error, 'An error occurred while calculating crypto deductions');
   }
 }
 

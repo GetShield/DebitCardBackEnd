@@ -26,6 +26,10 @@ export const CHAIN_TYPE = {
   TRON: 'tvm',
 };
 
+export const CURRENCY = {
+  USD: 'USD',
+} as const;
+
 export const CHAIN_MAP = {
   eth: {
     name: 'Ethereum Mainnet',

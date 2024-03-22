@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 
 import { Balance } from '../types';
 
-const BalanceSchema: Schema = new Schema<Balance>(
+const BalanceModel: Schema = new Schema<Balance>(
   {
     amount: { type: Number, required: true },
     blockchain: {
@@ -21,4 +21,4 @@ const BalanceSchema: Schema = new Schema<Balance>(
   }
 );
 
-export default model<Balance>('balances', BalanceSchema);
+export default model<Balance>('balances', BalanceModel);

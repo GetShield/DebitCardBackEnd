@@ -1,8 +1,8 @@
 import { Schema, model } from 'mongoose';
 
-import { IBlockchain } from '../types';
+import { Blockchain } from '../types';
 
-const Blockchain = new Schema<IBlockchain>(
+const Blockchain = new Schema<Blockchain>(
   {
     chain: { type: String, required: true, unique: true },
     chainId: { type: Number, required: false },
@@ -17,4 +17,4 @@ const Blockchain = new Schema<IBlockchain>(
   }
 );
 
-export default model<IBlockchain>('blockchains', Blockchain);
+export default model<Blockchain>('blockchains', Blockchain);

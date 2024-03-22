@@ -34,4 +34,11 @@ router.post(
   transactionsController.syncByCurrentUser
 );
 
+router.post(
+  '/sync-mock-transactions-by-current-user',
+  authorize,
+  logRequest,
+  transactionsController.syncMockTransactionsByCurrentUser
+);
+
 export default router;

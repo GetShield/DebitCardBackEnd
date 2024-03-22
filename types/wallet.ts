@@ -1,10 +1,10 @@
 import { Types } from 'mongoose';
 
-import { IBlockchain } from './blockchain';
+import { Blockchain } from './blockchain';
 
 export interface IWallet {
   address: String;
-  blockchains: Types.ObjectId[] | IBlockchain[];
+  blockchains: Types.ObjectId[] | Blockchain[];
   date: Date;
   user: Types.ObjectId;
 }

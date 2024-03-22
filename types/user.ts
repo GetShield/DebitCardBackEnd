@@ -23,3 +23,5 @@ export interface IUser {
   password: string;
   wallets: Types.ObjectId[] | IWallet[];
 }
+
+export type UserId = Types.ObjectId;

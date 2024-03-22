@@ -1,6 +1,4 @@
-import { ObjectId } from 'mongoose';
-
-import { Limit, LimitUpdateBody, Limits } from '../types';
+import { Limit, LimitUpdateBody, Limits, UserId } from '../types';
 import {
   getRampToken,
   getRampUserId,
@@ -33,7 +31,7 @@ export class LimitsService {
     }
   }
 
-  static async getLimitsByUserId(userId: ObjectId): Promise<Limit[]> {
+  static async getLimitsByUserId(userId: UserId): Promise<Limit[]> {
     try {
       const [rampUserId, token] = await Promise.all([
         getRampUserId(userId),

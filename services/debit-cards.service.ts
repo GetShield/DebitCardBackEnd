@@ -6,6 +6,7 @@ import {
   NewAirtableUser,
   RampCard,
   RampCardsResponse,
+  UserId,
 } from '../types';
 import { RAMP_API_URL } from '../config';
 import {
@@ -14,7 +15,6 @@ import {
   handleError,
   validateResponse,
 } from '../utils';
-import { ObjectId } from 'mongoose';
 
 export class DebitCardService {
   static async create(data: NewAirtableUser): Promise<string> {
@@ -64,7 +64,7 @@ export class DebitCardService {
     }
   }
 
-  static async findFromRamp(userId: ObjectId): Promise<RampCard[]> {
+  static async findFromRamp(userId: UserId): Promise<RampCard[]> {
     try {
       const rampUserId = await getRampUserId(userId);
       const token = await getRampToken();
