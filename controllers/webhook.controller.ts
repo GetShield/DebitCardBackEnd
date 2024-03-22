@@ -17,7 +17,6 @@ import { OnchainReceipt } from '../types';
 
 const WebhookController = {
   async processWebhook(req: Request, res: Response) {
-    let result = (await getTransactionById(req.body.txId)) as OnchainReceipt;
     const session = await mongoose.startSession();
     session.startTransaction();
 
