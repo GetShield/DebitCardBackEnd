@@ -39,8 +39,6 @@ const WebhookController = {
         from = result.data.item.senders[0].address;
       }
 
-      console.log({ txReceipt });
-
       let receipt = await TxReceipt.create({
         txHash: txReceipt.txId,
         from,
