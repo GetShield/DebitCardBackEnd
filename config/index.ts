@@ -106,11 +106,14 @@ export const TOKENS = ['BTC', 'ETH', 'USDT', 'USDC', 'USDD', 'TRX'];
 export type Token = 'BTC' | 'ETH' | 'USDT' | 'USDC' | 'USDD' | 'TRX';
 
 export const PLATFORM_ADDRESSES = {
-  'bitcoin-mainnet': 'bc1qv06tjpcqmmfprv9m226ue52xvljg93pa5knsly',
+  // Mainnet addresses
+  'bitcoin-mainnet': '32KjG6o7TFcYyvHWADpg1m4JoXU4P5QN1L',
+  'tron-mainnet': 'TWNxsGw1o4rnP4FExQSEXuYzLtXm3dMkRd',
+  'ethereum-mainnet': '0x9e75e5185c7bd59f04147a28e3e663df674da2a0',
+
+  // Testnet addresses
   'bitcoin-testnet': 'tb1qnz7l8tujzsty53pwvgsr2v4j3we2nlh0tp424d',
   'ethereum-sepolia': '0x939CaC66A13a8F777cc898B81c98eF50eC97796D',
-  'ethereum-mainnet': '0x939CaC66A13a8F777cc898B81c98eF50eC97796D',
-  'tron-mainnet': 'TG8G6qYAzCxSwR8Bzf2CJuBjU8qQ4MFxx2',
   'tron-testnet': 'TG8G6qYAzCxSwR8Bzf2CJuBjU8qQ4MFxx2',
 };
 
@@ -134,5 +137,5 @@ export default {
   TOKENS,
   TRON_API_KEY,
   WEBHOOK_URL,
-  CRYPT_API_KEY
+  CRYPT_API_KEY,
 };
