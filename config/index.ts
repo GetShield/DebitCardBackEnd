@@ -16,6 +16,7 @@ export const SHIELD_USERID = process.env.SHIELD_USERID || '';
 export const TATUM_API_KEY = process.env.TATUM_API_KEY || '';
 export const TRON_API_KEY = process.env.TRON_API_KEY || '';
 export const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
+export const CRYPT_API_KEY = process.env.CRYPT_API_KEY || '';
 export const TATUM_EXCHANGE_RATE_URL =
   process.env.TATUM_EXCHANGE_RATE_URL || '';
 
@@ -133,4 +134,5 @@ export default {
   TOKENS,
   TRON_API_KEY,
   WEBHOOK_URL,
+  CRYPT_API_KEY
 };

@@ -8,3 +8,4 @@ export * from './txData';
 export * from './txReceipt';
 export * from './user';
 export * from './wallet';
+export * from './onchainTransactionDetails';

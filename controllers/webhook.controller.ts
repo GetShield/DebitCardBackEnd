@@ -4,14 +4,20 @@ import logger from 'node-color-log';
 import mongoose from 'mongoose';
 
 import TxReceipt from '../models/txReceipt.model';
-import { getExchangeRate, getRampUserId, handleHttpError } from '../utils';
+import {
+  getExchangeRate,
+  getRampUserId,
+  handleHttpError,
+  getTransactionById,
+} from '../utils';
 import { LimitsService } from '../services/limits.service';
 import BalanceController from '../controllers/balance.controller';
 import BlockchainModel from '../models/blockchain.model';
+import { OnchainReceipt } from '../types';
 
 const WebhookController = {
   async processWebhook(req: Request, res: Response) {
-    // Start a session for the transaction
+    let result = (await getTransactionById(req.body.txId)) as OnchainReceipt;
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -23,6 +29,13 @@ const WebhookController = {
 
       let exchangeRate = Number((await getExchangeRate('ETH'))?.price);
       let usdValue = exchangeRate * Number(txReceipt.amount);
+
+      if (txReceipt.currency === 'BTC' && !txReceipt.counterAddress) {
+        let result = (await getTransactionById(
+          req.body.txId
+        )) as OnchainReceipt;
+        txReceipt.counterAddress == result.data.item.senders[0].sender;
+      }
 
       let receipt = await TxReceipt.create({
         txHash: txReceipt.txId,

@@ -105,3 +105,4 @@ interface AccountingCategory {
   category_id: any;
   category_name: string;
 }
+

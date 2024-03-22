@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { Response } from 'express';
 import { validate } from 'bitcoin-address-validation';
 import logger from 'node-color-log';
-import { CHAIN_TYPE } from '../config';
+import { CHAIN_TYPE, CRYPT_API_KEY } from '../config';
 import {
   RAMP_CLIENT_ID,
   RAMP_SECRET_ID,
@@ -14,6 +14,7 @@ import {
 import { baseDebitCards } from '..';
 import { Balance, CryptoDeduction, Price } from '../types';
 import { ObjectId } from 'mongoose';
+const https = require('https');
 
 const CoinMarketCap = require('coinmarketcap-api');
 import ccxt from 'ccxt';
@@ -259,4 +260,42 @@ export async function calculateCryptoDeductions(
   } catch (error) {
     handleError(error, 'An error occurred while calculating crypto deductions');
   }
+}
+
+export function getTransactionById(txId: string) {
+  return new Promise((resolve, reject) => {
+    var options = {
+      method: 'GET',
+      hostname: 'rest.cryptoapis.io',
+      path: `/v2/blockchain-data/bitcoin/testnet/transactions/${txId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': CRYPT_API_KEY,
+      },
+    };
+
+    var req = https.request(options, (res: any) => {
+      let chunks: any = [];
+
+      res.on('data', (chunk: any) => {
+        chunks.push(chunk);
+      });
+
+      res.on('end', () => {
+        let data = Buffer.concat(chunks);
+        try {
+          let result = JSON.parse(data.toString());
+          resolve(result); // Resolve the promise with the result
+        } catch (e) {
+          reject(e); // Reject the promise if an error occurs
+        }
+      });
+    });
+
+    req.on('error', (e: Error) => {
+      reject(e); // Reject the promise if an error occurs during the request
+    });
+
+    req.end();
+  });
 }
