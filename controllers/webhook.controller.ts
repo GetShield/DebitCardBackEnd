@@ -29,16 +29,21 @@ const WebhookController = {
       let exchangeRate = Number((await getExchangeRate('ETH'))?.price);
       let usdValue = exchangeRate * Number(txReceipt.amount);
 
+      let from = txReceipt.counterAddress;
+
       if (txReceipt.currency === 'BTC' && !txReceipt.counterAddress) {
         let result = (await getTransactionById(
           req.body.txId
         )) as OnchainReceipt;
-        txReceipt.counterAddress == result.data.item.senders[0].sender;
+
+        from = result.data.item.senders[0].address;
       }
+
+      console.log({ txReceipt });
 
       let receipt = await TxReceipt.create({
         txHash: txReceipt.txId,
-        from: txReceipt.counterAddress,
+        from,
         to: txReceipt.address,
         blockchain: blockchain!.id,
         amount: txReceipt.amount,

@@ -14,7 +14,7 @@ interface Data {
   minedInBlockHash: string;
   minedInBlockHeight: number;
   recipients: Array<string>;
-  senders: Array<{ sender: string; amount: string }>;
+  senders: Array<{ address: string; amount: string }>;
   timestamp: number;
   transactionHash: string;
   transactionId: string;
