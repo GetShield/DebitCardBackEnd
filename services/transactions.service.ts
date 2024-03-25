@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
+import logger from 'node-color-log';
 
 import {
   Balance,
-  Blockchain,
   CryptoDeduction,
   ExchangeRate,
   RampTransaction,
@@ -17,10 +17,10 @@ import {
   getRampUserId,
   handleError,
   validateResponse,
-  getExchangeRate,
   getAllExchangeRates,
+  buildSyncResponse,
 } from '../utils';
-import { CURRENCY, RAMP_API_URL, Token } from '../config';
+import { RAMP_API_URL, Token } from '../config';
 import TransactionModel from '../models/transaction.model';
 import BalanceModel from '../models/balance.model';
 import { BalanceService } from './balance.service';
@@ -59,7 +59,7 @@ export class TransactionsService {
 
   static async notSynced(userId: UserId): Promise<RampTransaction[]> {
     try {
-      const transactions = await TransactionsService.findFromRamp(userId);
+      const transactions = await this.findFromRamp(userId);
 
       const newTransactions = await TransactionModel.find({
         ramp_transaction_id: { $in: transactions.map((t) => t.id) },
@@ -74,6 +74,89 @@ export class TransactionsService {
       handleError(
         error,
         `Failed to find new transactions from ramp for user ${userId}`
+      );
+    }
+  }
+
+  static async updateUserBalances(
+    rampTransaction: RampTransaction,
+    userId: UserId,
+    exchangeRates: ExchangeRate[],
+    session: mongoose.ClientSession
+  ): Promise<CryptoDeduction[]> {
+    try {
+      const userBalances = await BalanceService.getBalancesAndUSD(
+        userId,
+        exchangeRates
+      );
+
+      console.log({ exchangeRates });
+
+      const cryptoDeductions: CryptoDeduction[] = [];
+      let amountToDecreaseInUSD = rampTransaction.amount;
+      let newBalances = userBalances;
+
+      for (const _balance of newBalances) {
+        if (amountToDecreaseInUSD <= 0) {
+          break;
+        }
+
+        const userBalances = await BalanceService.getBalancesAndUSD(
+          userId,
+          exchangeRates
+        );
+
+        const { balance: higherBalance } = userBalances.reduce(
+          (acc, balance) => {
+            if (balance.usdEquivalent > acc.usdEquivalent) {
+              return balance;
+            }
+            return acc;
+          }
+        );
+
+        const exchangeRate = await getHistoricPrice(
+          higherBalance.currency,
+          rampTransaction.user_transaction_time
+        );
+
+        console.log({ exchangeRate });
+
+        if (!exchangeRate) {
+          throw new Error(
+            `Failed to get exchange rate for ${higherBalance.currency} at ${rampTransaction.user_transaction_time}`
+          );
+        }
+
+        const cryptoToDecrease = rampTransaction.amount / exchangeRate;
+
+        const cryptoDeduction: CryptoDeduction = {
+          amount: cryptoToDecrease,
+          balance: higherBalance._id,
+          exchangeRate: exchangeRate,
+          ticker: higherBalance.currency,
+          usdValue: cryptoToDecrease * exchangeRate,
+        };
+
+        cryptoDeductions.push(cryptoDeduction);
+        amountToDecreaseInUSD -= cryptoDeduction.usdValue;
+
+        await BalanceModel.findOneAndUpdate(
+          { _id: higherBalance._id },
+          { $inc: { amount: -cryptoToDecrease } },
+          { session }
+        );
+      }
+
+      if (cryptoDeductions.length === 0) {
+        throw new Error('No balances were updated');
+      }
+
+      return cryptoDeductions;
+    } catch (error) {
+      handleError(
+        error,
+        `Failed to update user balances for user ${userId} and transaction ${rampTransaction.id}`
       );
     }
   }
@@ -97,61 +180,12 @@ export class TransactionsService {
         );
       }
 
-      const balancesAndUSD = await BalanceService.getBalancesAndUSD(
+      const cryptoDeductions = await this.updateUserBalances(
+        rampTransaction,
         userId,
-        exchangeRates
+        exchangeRates,
+        session
       );
-
-      const cryptoDeductions: CryptoDeduction[] = [];
-      let amountToDecreaseInUSD = rampTransaction.amount;
-      let newBalances = balancesAndUSD;
-
-      console.log({ amountToDecreaseInUSD });
-
-      for (const _balance of newBalances) {
-        if (amountToDecreaseInUSD <= 0) {
-          break;
-        }
-
-        const { balance: higherBalance } = newBalances.reduce(
-          (acc, balance) => {
-            if (balance.usdEquivalent > acc.usdEquivalent) {
-              return balance;
-            }
-            return acc;
-          }
-        );
-
-        const { price: exchangeRate } = await getExchangeRate(
-          higherBalance.currency
-        );
-
-        const cryptoToDecrease = rampTransaction.amount / exchangeRate;
-
-        const cryptoDeduction: CryptoDeduction = {
-          amount: cryptoToDecrease,
-          balance: higherBalance._id,
-          exchangeRate: exchangeRate,
-          ticker: higherBalance.currency,
-          usdValue: cryptoToDecrease * exchangeRate,
-        };
-
-        console.log({ cryptoDeduction });
-
-        cryptoDeductions.push(cryptoDeduction);
-        amountToDecreaseInUSD -= cryptoDeduction.usdValue;
-        newBalances = newBalances.filter(
-          (balance) => balance.balance._id !== higherBalance._id
-        );
-
-        const balanceUpdated = await BalanceModel.findOneAndUpdate(
-          { _id: higherBalance._id },
-          { $inc: { amount: -cryptoToDecrease } },
-          { session }
-        );
-
-        console.log({ balanceUpdated });
-      }
 
       const transaction: Transaction = {
         ramp_amount: rampTransaction.amount,
@@ -166,9 +200,12 @@ export class TransactionsService {
         session,
       });
 
-      console.log({ newTransaction });
-
       await session.commitTransaction();
+
+      logger.info(
+        `Transaction of rampId: ${rampTransaction.id} synced successfully`
+      );
+
       return newTransaction[0];
     } catch (error) {
       session.abortTransaction();
@@ -184,18 +221,14 @@ export class TransactionsService {
   static async syncTransactions(
     userId: UserId
   ): Promise<SyncTransactionsResponse> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try {
-      const notSyncedTransactions = await TransactionsService.notSynced(userId);
-
+      const notSyncedTransactions = await this.notSynced(userId);
       const exchangeRates = await getAllExchangeRates();
 
-      const savedTransactions = [];
+      const savedTransactions: Transaction[] = [];
 
       for (const t of notSyncedTransactions) {
-        const savedTransaction = await TransactionsService.insertTransaction(
+        const savedTransaction = await this.insertTransaction(
           t,
           exchangeRates,
           userId
@@ -203,33 +236,16 @@ export class TransactionsService {
         savedTransactions.push(savedTransaction);
       }
 
-      const totalUSD = savedTransactions.reduce((acc, t) => {
-        return (
-          acc + t.crypto_deductions.reduce((acc, cd) => acc + cd.usdValue, 0)
-        );
-      }, 0);
-
-      const totalRampUSD = notSyncedTransactions.reduce(
-        (acc, t) => acc + t.amount,
-        0
+      const response = buildSyncResponse(
+        savedTransactions,
+        notSyncedTransactions
       );
-
-      await session.commitTransaction();
-
-      return {
-        numberOfTransactions: savedTransactions.length,
-        transactionsTotalUSD: totalUSD,
-        rampTotalUSD: totalRampUSD,
-        transactions: savedTransactions,
-      };
+      return response;
     } catch (error) {
-      await session.abortTransaction();
       handleError(
         error,
         `Failed to sync transactions from ramp for user ${userId}`
       );
-    } finally {
-      session.endSession();
     }
   }
 
@@ -237,16 +253,13 @@ export class TransactionsService {
     userId: UserId,
     rampTransactions: RampTransaction[]
   ): Promise<SyncTransactionsResponse> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try {
       const exchangeRates = await getAllExchangeRates();
 
       const savedTransactions: Transaction[] = [];
 
       for (const t of rampTransactions) {
-        const savedTransaction = await TransactionsService.insertTransaction(
+        const savedTransaction = await this.insertTransaction(
           t,
           exchangeRates,
           userId
@@ -254,33 +267,13 @@ export class TransactionsService {
         savedTransactions.push(savedTransaction);
       }
 
-      const totalUSD = savedTransactions.reduce((acc, t) => {
-        return (
-          acc + t.crypto_deductions.reduce((acc, cd) => acc + cd.usdValue, 0)
-        );
-      }, 0);
-
-      const totalRampUSD = rampTransactions.reduce(
-        (acc, t) => acc + t.amount,
-        0
-      );
-
-      await session.commitTransaction();
-
-      return {
-        numberOfTransactions: savedTransactions.length,
-        transactionsTotalUSD: totalUSD,
-        rampTotalUSD: totalRampUSD,
-        transactions: savedTransactions,
-      };
+      const response = buildSyncResponse(savedTransactions, rampTransactions);
+      return response;
     } catch (error) {
-      await session.abortTransaction();
       handleError(
         error,
         `Failed to sync mock transactions from ramp for user ${userId}`
       );
-    } finally {
-      session.endSession();
     }
   }
 }

@@ -105,9 +105,9 @@ export const TOKEN_MAP = {
   ],
 };
 
-export const TOKENS = ['BTC', 'ETH', 'USDT', 'USDC', 'USDD', 'TRX'];
+export const TOKENS = ['BTC', 'ETH', 'USDC', 'TRX'];
 
-export type Token = 'BTC' | 'ETH' | 'USDT' | 'USDC' | 'USDD' | 'TRX';
+export type Token = 'BTC' | 'ETH' | 'USDC' | 'TRX';
 
 export const PLATFORM_ADDRESSES = {
   // Mainnet addresses

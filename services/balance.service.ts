@@ -6,19 +6,16 @@ import { handleError } from '../utils';
 export class BalanceService {
   static async getBalancesByUserId(userId: UserId): Promise<Balance[]> {
     try {
-      // Find wallets for the user
       const wallets = await walletModel.find({ user: userId });
 
-      // Extract wallet ids
       const walletIds = wallets.map((wallet) => wallet._id);
 
-      // Find balances for the wallets
-      const balances = await balanceModel
+      const balances: Balance[] = await balanceModel
         .find({ wallet: { $in: walletIds } })
         .populate('wallet')
         .populate('blockchain');
 
-      return balances as any as Balance[];
+      return balances;
     } catch (error) {
       handleError(error, `Failed to get balances for user ${userId}`);
     }
@@ -37,6 +34,10 @@ export class BalanceService {
           usdEquivalent: balance.amount * price,
         };
       });
+
+      if (balancesWithUSDEquivalents.length < 1) {
+        throw new Error(`No balances found for user ${userId}`);
+      }
 
       return balancesWithUSDEquivalents;
     } catch (error) {

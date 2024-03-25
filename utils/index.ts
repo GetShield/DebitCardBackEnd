@@ -2,7 +2,7 @@ const TronWeb = require('tronweb'); //there is no types for tronweb
 import { ethers } from 'ethers';
 import { Response } from 'express';
 import { validate } from 'bitcoin-address-validation';
-import logger from 'node-color-log';
+
 import { CHAIN_TYPE, CRYPT_API_KEY } from '../config';
 import {
   RAMP_CLIENT_ID,
@@ -12,18 +12,13 @@ import {
   CMC_API_KEY,
 } from '../config';
 import { baseDebitCards } from '..';
-import {
-  Balance,
-  CryptoDeduction,
-  ExchangeRate,
-  Price,
-  UserId,
-} from '../types';
+import { Balance, ExchangeRate, Price, UserId } from '../types';
 
 const https = require('https');
 
 const CoinMarketCap = require('coinmarketcap-api');
 import ccxt from 'ccxt';
+import { LastPrices, Strings } from 'ccxt/js/src/base/types';
 
 export async function getRampToken() {
   try {
@@ -152,18 +147,43 @@ export async function getExchangeRate(ticker: string): Promise<ExchangeRate> {
 }
 
 export async function getAllExchangeRates(): Promise<ExchangeRate[]> {
-  const client = new CoinMarketCap(CMC_API_KEY);
   try {
-    const quotes = await client.getQuotes({ symbol: TOKENS });
+    const symbols: Strings = TOKENS.map(
+      (tokenName: string) => `${tokenName}/USDT`
+    );
 
-    const priceArr = TOKENS.map((tokenName: string, index: number) => {
-      const price = quotes.data[tokenName].quote.USD.price;
-      return { name: tokenName, price: price };
-    });
+    let exchange = new ccxt.binance();
+    let prices: LastPrices = await exchange.fetchLastPrices(symbols);
+
+    let priceArr: ExchangeRate[] = [];
+    for (let token of TOKENS) {
+      let price = prices[`${token}/USDT`].price;
+      priceArr.push({ name: token, price });
+    }
 
     return priceArr;
   } catch (err) {
     handleError(err, 'An error occurred while executing getAllExchangeRates');
+  }
+}
+
+export async function getHistoricPrice(ticker: string, dateStr: string) {
+  try {
+    if (TOKENS.indexOf(ticker) === -1) {
+      throw new Error(
+        `Invalid ticker! The ticker must be one of the following: ${TOKENS.join(
+          ', '
+        )}`
+      );
+    }
+
+    let exchange = new ccxt.binance();
+    let timestamp = new Date(dateStr).getTime();
+    let data = await exchange.fetchOHLCV(`${ticker}/USDT`, '1m', timestamp, 1);
+
+    return data[0][1];
+  } catch (err) {
+    handleError(err, 'An error occurred while executing getHistoricPrice');
   }
 }
 
@@ -192,26 +212,6 @@ export function handleHttpError(
 export function validateResponse(response: any, message: string) {
   if (!response.ok) {
     throw new Error(`${message}: ${response.status} - ${response.statusText}`);
-  }
-}
-
-export async function getHistoricPrice(ticker: string, dateStr: string) {
-  try {
-    if (TOKENS.indexOf(ticker) === -1) {
-      throw new Error(
-        `Invalid ticker! The ticker must be one of the following: ${TOKENS.join(
-          ', '
-        )}`
-      );
-    }
-
-    let exchange = new ccxt.binance();
-    let timestamp = new Date(dateStr).getTime();
-    let data = await exchange.fetchOHLCV(`${ticker}/USDT`, '1m', timestamp, 1);
-
-    return data[0][1];
-  } catch (err) {
-    throw err;
   }
 }
 
@@ -252,3 +252,5 @@ export function getTransactionById(txId: string) {
     req.end();
   });
 }
+
+export * from './buildSyncResponse';
