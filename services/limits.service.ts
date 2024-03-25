@@ -65,8 +65,6 @@ export class LimitsService {
 
       const realBalance = totalLimit - totalBalance;
 
-      console.log({ totalBalance, totalLimit, 'real balance': realBalance });
-
       return data;
     } catch (error) {
       handleError(error, 'An error occurred while getting limits by user id');

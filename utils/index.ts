@@ -122,12 +122,7 @@ export async function validateWalletAddress(
     }
     return true;
   } catch (error: Error | any) {
-    if (error instanceof Error) {
-      console.log('error', error.message);
-      return error;
-    } else {
-      return new Error('An error occurred while validating the wallet address');
-    }
+    handleError(error, 'An error occurred while validating the wallet address');
   }
 }
 

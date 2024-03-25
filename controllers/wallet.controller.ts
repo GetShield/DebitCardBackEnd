@@ -232,7 +232,6 @@ const WalletController = {
       }
 
       // validate wallet address
-      console.log({ address, chainType });
       const isValid = await validateWalletAddress(address, chainType);
       if (isValid !== true) {
         handleHttpError(

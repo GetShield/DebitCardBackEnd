@@ -56,14 +56,11 @@ const BalanceController = {
         wallet: wallets[0]._id,
       }).populate({ path: 'wallet', select: 'user' });
 
-      console.log({ balance });
-
       if (!balance) {
         throw new Error('Balance not found');
       }
 
       const walletWithUser: any = balance.wallet;
-      console.log({ walletWithUser });
       return {
         currency: balance.currency.toString(),
         userId: walletWithUser.user,

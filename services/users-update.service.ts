@@ -15,7 +15,7 @@ export function startUpdateService() {
 }
 
 async function updateAllUsers() {
-  console.log(
+  logger.info(
     'Updating all users now and every',
     everyTimeInMinutes,
     'minutes.'

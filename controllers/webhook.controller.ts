@@ -26,10 +26,6 @@ const WebhookController = {
         chain: txReceipt.chain,
       });
 
-      console.log({
-        txReceipt,
-      });
-
       let exchangeRate = Number((await getExchangeRate('ETH'))?.price);
       let usdValue = exchangeRate * Number(txReceipt.amount);
 
@@ -39,7 +35,6 @@ const WebhookController = {
         let result = (await getTransactionById(
           req.body.txId
         )) as OnchainReceipt;
-        console.log(result.data.item.senders);
         from = result.data.item.senders[0].address;
       }
 
@@ -78,12 +73,10 @@ const WebhookController = {
 
       let rampUserId = await getRampUserId(result.userId);
 
-      const updateLimitRes = await LimitsService.updateUserSpendLimits(
-        rampUserId,
-        usdValue
-      );
+      await LimitsService.updateUserSpendLimits(rampUserId, usdValue);
 
-      console.log('updateLimitRes: ', updateLimitRes);
+      logger.info(`User spend limits updated for user: ${rampUserId}`);
+
       await session.commitTransaction();
 
       res.status(200).send();

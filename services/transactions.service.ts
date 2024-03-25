@@ -85,18 +85,12 @@ export class TransactionsService {
     session: mongoose.ClientSession
   ): Promise<CryptoDeduction[]> {
     try {
-      const userBalances = await BalanceService.getBalancesAndUSD(
-        userId,
-        exchangeRates
-      );
-
-      console.log({ exchangeRates });
+      const userBalances = await BalanceService.getBalancesByUserId(userId);
 
       const cryptoDeductions: CryptoDeduction[] = [];
       let amountToDecreaseInUSD = rampTransaction.amount;
-      let newBalances = userBalances;
 
-      for (const _balance of newBalances) {
+      for (const _balance of userBalances) {
         if (amountToDecreaseInUSD <= 0) {
           break;
         }
@@ -119,8 +113,6 @@ export class TransactionsService {
           higherBalance.currency,
           rampTransaction.user_transaction_time
         );
-
-        console.log({ exchangeRate });
 
         if (!exchangeRate) {
           throw new Error(
