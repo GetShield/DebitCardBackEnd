@@ -9,3 +9,4 @@ export * from './txReceipt';
 export * from './user';
 export * from './wallet';
 export * from './onchainTransactionDetails';
+export * from './txOrphaned';

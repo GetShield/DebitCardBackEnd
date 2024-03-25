@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import BalanceModel from '../models/balance.model';
 import BlockchainModel from '../models/blockchain.model';
 import WalletModel from '../models/wallet.model';
+import TxOrphaned from '../models/txOrphaned.model';
 import { TxData } from '../types/txData';
 import { BalanceService } from '../services';
 import { handleError, handleHttpError } from '../utils';
@@ -43,6 +44,13 @@ const BalanceController = {
     try {
       const blockchains = await BlockchainModel.find({ chain: data.chain });
       const wallets = await WalletModel.find({ address: data.from });
+
+      if (!wallets.length) {
+        await TxOrphaned.create(data);
+        throw new Error(
+          `Wallet not found and txHash ${data.txHash} saved as orphaned!`
+        );
+      }
 
       await BalanceController.updateBalance(
         data.amount,

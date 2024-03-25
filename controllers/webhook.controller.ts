@@ -13,7 +13,7 @@ import {
 import { LimitsService } from '../services/limits.service';
 import BalanceController from '../controllers/balance.controller';
 import BlockchainModel from '../models/blockchain.model';
-import { OnchainReceipt } from '../types';
+import { OnchainReceipt, TxData } from '../types';
 
 const WebhookController = {
   async processWebhook(req: Request, res: Response) {
@@ -59,7 +59,7 @@ const WebhookController = {
 
       logger.info(`New TxReceipt created: ${receipt}`);
 
-      let balanceData = {
+      let balanceData: TxData = {
         chain: txReceipt.chain,
         amount: ethers.formatEther(ethers.parseEther(txReceipt.amount)),
         from,
@@ -81,11 +81,8 @@ const WebhookController = {
 
       res.status(200).send();
     } catch (error) {
-      if (error instanceof Error) {
-        await session.abortTransaction();
-        session.endSession();
-        handleHttpError(error, res);
-      }
+      await session.abortTransaction();
+      handleHttpError(error, res);
     } finally {
       session.endSession();
     }
