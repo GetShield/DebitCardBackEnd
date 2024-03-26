@@ -19,6 +19,8 @@ export const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
 export const CRYPT_API_KEY = process.env.CRYPT_API_KEY || '';
 export const TATUM_EXCHANGE_RATE_URL =
   process.env.TATUM_EXCHANGE_RATE_URL || '';
+export const BINANCE_API_KEY = process.env.BINANCE_API_KEY || '';
+export const BINANCE_API_SECRET = process.env.BINANCE_API_SECRET || '';
 
 export const CHAIN_TYPE = {
   BTC: 'bitcoin',

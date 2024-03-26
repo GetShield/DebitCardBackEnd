@@ -3,7 +3,12 @@ import { ethers } from 'ethers';
 import { Response } from 'express';
 import { validate } from 'bitcoin-address-validation';
 
-import { CHAIN_TYPE, CRYPT_API_KEY } from '../config';
+import {
+  CHAIN_TYPE,
+  CRYPT_API_KEY,
+  BINANCE_API_KEY,
+  BINANCE_API_SECRET,
+} from '../config';
 import {
   RAMP_CLIENT_ID,
   RAMP_SECRET_ID,
@@ -147,7 +152,13 @@ export async function getAllExchangeRates(): Promise<ExchangeRate[]> {
       (tokenName: string) => `${tokenName}/USDT`
     );
 
-    let exchange = new ccxt.binance();
+    const exchangeId = 'binance',
+      exchangeClass = ccxt[exchangeId],
+      exchange = new exchangeClass({
+        apiKey: BINANCE_API_KEY,
+        secret: BINANCE_API_SECRET,
+      });
+
     let prices: LastPrices = await exchange.fetchLastPrices(symbols);
 
     let priceArr: ExchangeRate[] = [];
