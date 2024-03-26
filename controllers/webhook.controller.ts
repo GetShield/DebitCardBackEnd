@@ -11,9 +11,9 @@ import {
   getTransactionById,
 } from '../utils';
 import { LimitsService } from '../services/limits.service';
-import BalanceController from '../controllers/balance.controller';
 import BlockchainModel from '../models/blockchain.model';
 import { OnchainReceipt, TxData } from '../types';
+import { BalanceService } from '../services';
 
 const WebhookController = {
   async processWebhook(req: Request, res: Response) {
@@ -38,24 +38,17 @@ const WebhookController = {
         from = result.data.item.senders[0].address;
       }
 
-      let receipt = await TxReceipt.create(
-        [
-          {
-            txHash: txReceipt.txId,
-            from,
-            to: txReceipt.address,
-            blockchain: blockchain!.id,
-            amount: txReceipt.amount,
-            blockNumber: txReceipt.blockNumber,
-            identificationDate: new Date(),
-            exchangeRate,
-            usdValue,
-          },
-        ],
-        {
-          session,
-        }
-      );
+      let receipt = await TxReceipt.create({
+        txHash: txReceipt.txId,
+        from,
+        to: txReceipt.address,
+        blockchain: blockchain!.id,
+        amount: txReceipt.amount,
+        blockNumber: txReceipt.blockNumber,
+        identificationDate: new Date(),
+        exchangeRate,
+        usdValue,
+      });
 
       logger.info(`New TxReceipt created: ${receipt}`);
 
@@ -69,7 +62,7 @@ const WebhookController = {
         currency: txReceipt.currency,
       };
 
-      const result = await BalanceController.updateInside(balanceData);
+      const result = await BalanceService.updateInside(balanceData, session);
 
       let rampUserId = await getRampUserId(result.userId);
 

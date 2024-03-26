@@ -8,7 +8,7 @@ const Blockchain = new Schema<Blockchain>(
     chainId: { type: Number, required: false },
     chainType: { type: String, required: true },
     mainnet: { type: Boolean, required: true },
-    native_symbol: { type: String, required: true },
+    nativeSymbol: { type: String, required: true },
     wallets: [{ type: Schema.Types.ObjectId, ref: 'wallets' }],
   },
   {

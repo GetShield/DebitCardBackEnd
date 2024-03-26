@@ -3,15 +3,12 @@ import { Request, Response } from 'express';
 import BalanceModel from '../models/balance.model';
 import BlockchainModel from '../models/blockchain.model';
 import WalletModel from '../models/wallet.model';
-import TxOrphaned from '../models/txOrphaned.model';
-import { TxData } from '../types/txData';
 import { BalanceService } from '../services';
 import { handleError, handleHttpError } from '../utils';
+import mongoose from 'mongoose';
 
 const BalanceController = {
   async getAll(req: Request, res: Response) {
-    // ...
-
     try {
       const balances = await BalanceModel.find()
         .populate('wallet')
@@ -23,63 +20,9 @@ const BalanceController = {
     }
   },
 
-  async updateBalance(
-    amount: number,
-    currency: string,
-    blockchainId: string,
-    walletId: string
-  ) {
-    try {
-      await BalanceModel.findOneAndUpdate(
-        { currency, blockchain: blockchainId, wallet: walletId },
-        { $inc: { amount: amount } },
-        { upsert: true }
-      );
-    } catch (error) {
-      handleError(error, 'Error updating balance');
-    }
-  },
-
-  async updateInside(data: TxData) {
-    try {
-      const blockchains = await BlockchainModel.find({ chain: data.chain });
-      const wallets = await WalletModel.find({ address: data.from });
-
-      if (!wallets.length) {
-        await TxOrphaned.create(data);
-        throw new Error(
-          `Wallet not found and txHash ${data.txHash} saved as orphaned!`
-        );
-      }
-
-      await BalanceController.updateBalance(
-        data.amount,
-        data.currency,
-        blockchains[0]._id.toString(),
-        wallets[0]._id.toString()
-      );
-
-      let balance = await BalanceModel.findOne({
-        blockchain: blockchains[0]._id,
-        wallet: wallets[0]._id,
-      }).populate({ path: 'wallet', select: 'user' });
-
-      if (!balance) {
-        throw new Error('Balance not found');
-      }
-
-      const walletWithUser: any = balance.wallet;
-      return {
-        currency: balance.currency.toString(),
-        userId: walletWithUser.user,
-        amount: Number(balance.amount),
-      };
-    } catch (error) {
-      handleError(error, 'Error updating balance inside');
-    }
-  },
-
   async update(req: Request, res: Response) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
       const blockchain = req.body.blockchain;
       const walletAddress = req.body.walletAddress;
@@ -106,11 +49,16 @@ const BalanceController = {
         return;
       }
 
-      let balances = await BalanceController.updateInside(req.body);
+      let balances = await BalanceService.updateInside(req.body, session);
+
+      await session.commitTransaction();
 
       res.send({ balances });
     } catch (err) {
+      await session.abortTransaction();
       handleHttpError(err, res);
+    } finally {
+      session.endSession();
     }
   },
 

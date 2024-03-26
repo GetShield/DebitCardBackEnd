@@ -1,17 +1,22 @@
-import balanceModel from '../models/balance.model';
-import walletModel from '../models/wallet.model';
-import { Balance, Price, UserId } from '../types';
+import { ClientSession } from 'mongoose';
+
+import BalanceModel from '../models/balance.model';
+import BlockchainModel from '../models/blockchain.model';
+import WalletModel from '../models/wallet.model';
+import TxOrphanedModel from '../models/txOrphaned.model';
+import { Balance, IWallet, Price, TxData, UserId } from '../types';
 import { handleError } from '../utils';
 
 export class BalanceService {
   static async getBalancesByUserId(userId: UserId): Promise<Balance[]> {
     try {
-      const wallets = await walletModel.find({ user: userId });
+      const wallets = await WalletModel.find({ user: userId });
 
       const walletIds = wallets.map((wallet) => wallet._id);
 
-      const balances: Balance[] = await balanceModel
-        .find({ wallet: { $in: walletIds } })
+      const balances: Balance[] = await BalanceModel.find({
+        wallet: { $in: walletIds },
+      })
         .populate('wallet')
         .populate('blockchain');
 
@@ -86,6 +91,59 @@ export class BalanceService {
         error,
         `Failed to get total balance in USD for user ${userId}`
       );
+    }
+  }
+
+  static async updateInside(data: TxData, session: ClientSession) {
+    try {
+      console.log({ data });
+      const blockchains = await BlockchainModel.find({ chain: data.chain });
+      const wallets = await WalletModel.find({ address: data.from });
+
+      if (!wallets.length) {
+        await TxOrphanedModel.create(data);
+        throw new Error(
+          `Wallet not found and txHash ${data.txHash} saved as orphaned!`
+        );
+      }
+
+      await BalanceModel.findOneAndUpdate(
+        {
+          currency: data.currency,
+          blockchain: blockchains[0]._id.toString(),
+          wallet: wallets[0]._id.toString(),
+        },
+        { $inc: { amount: data.amount } },
+        { upsert: true, session: session }
+      );
+
+      console.log({
+        blockchains,
+        wallets,
+      });
+
+      let balance = await BalanceModel.findOne(
+        {
+          blockchain: blockchains[0]._id,
+          wallet: wallets[0]._id,
+        },
+        null,
+        { session }
+      ).populate({ path: 'wallet', select: 'user' });
+
+      if (!balance) {
+        throw new Error('Balance not found');
+      }
+
+      const wallet = balance.wallet as IWallet;
+
+      return {
+        currency: balance.currency.toString(),
+        userId: wallet.user,
+        amount: Number(balance.amount),
+      };
+    } catch (error) {
+      handleError(error, 'Error updating balance inside');
     }
   }
 }

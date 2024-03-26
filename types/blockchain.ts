@@ -3,10 +3,10 @@ import { Document, Types } from 'mongoose';
 import { IWallet } from './wallet';
 
 export interface Blockchain extends Document {
-  chain: String;
-  chainId: Number;
-  chainType: String;
-  mainnet: Boolean;
-  native_symbol: String;
+  chain: string;
+  chainId: number;
+  chainType: string;
+  mainnet: boolean;
+  nativeSymbol: string;
   wallets: Types.ObjectId[] | IWallet[];
 }

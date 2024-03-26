@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+
 import { ITxReceipt } from '../types';
 
 const TxReceipt = new Schema<ITxReceipt>(
@@ -14,7 +15,7 @@ const TxReceipt = new Schema<ITxReceipt>(
     from: { type: String, required: true },
     identificationDate: { type: Date, required: true },
     to: { type: String, required: true },
-    txHash: { type: String, required: true },
+    txHash: { type: String, required: true, unique: true, index: true },
     usdValue: { type: Number, required: true },
   },
   {

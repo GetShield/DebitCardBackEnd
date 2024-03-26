@@ -154,10 +154,7 @@ export async function getAllExchangeRates(): Promise<ExchangeRate[]> {
 
     const exchangeId = 'binance',
       exchangeClass = ccxt[exchangeId],
-      exchange = new exchangeClass({
-        apiKey: BINANCE_API_KEY,
-        secret: BINANCE_API_SECRET,
-      });
+      exchange = new exchangeClass();
 
     let prices: LastPrices = await exchange.fetchLastPrices(symbols);
 

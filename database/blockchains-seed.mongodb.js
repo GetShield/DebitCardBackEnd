@@ -8,13 +8,13 @@ use('DebitCardDB');
 db.getCollection('blockchains').insertMany([
   {
     chain: 'bitcoin-mainnet',
-    native_symbol: 'BTC',
+    nativeSymbol: 'BTC',
     chain_type: 'bitcoin',
     wallets: [],
   },
   {
     chain: 'tron-mainnet',
-    native_symbol: 'TRX',
+    nativeSymbol: 'TRX',
     wallets: [],
     chain_type: 'tvm',
     // Tron mainnet specific ID if applicable, but generally not labeled as "chainId" in Ethereum's sense.
@@ -22,19 +22,19 @@ db.getCollection('blockchains').insertMany([
   {
     chain: 'ethereum-mainnet',
     chainId: 1,
-    native_symbol: 'ETH',
+    nativeSymbol: 'ETH',
     chain_type: 'evm',
     wallets: [],
   },
   {
     chain: 'bitcoin-testnet',
-    native_symbol: 'BTC',
+    nativeSymbol: 'BTC',
     chain_type: 'bitcoin',
     wallets: [],
   },
   {
     chain: 'tron-testnet',
-    native_symbol: 'TRX',
+    nativeSymbol: 'TRX',
     chain_type: 'tvm',
     wallets: [],
     // Tron Nile testnet specific ID if applicable.
@@ -42,7 +42,7 @@ db.getCollection('blockchains').insertMany([
   {
     chain: 'ethereum-sepolia',
     chainId: 11155111,
-    native_symbol: 'ETH',
+    nativeSymbol: 'ETH',
     chain_type: 'evm',
     wallets: [],
   },
