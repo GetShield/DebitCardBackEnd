@@ -1,23 +1,38 @@
 import logger from 'node-color-log';
+
 import { baseDebitCards } from '..';
-import { Card, NewAirtableUser } from '../types';
-import { Result } from '../types';
-import { getRampToken } from '../utils';
+import {
+  AirtableCard,
+  NewAirtableUser,
+  RampCard,
+  RampCardsResponse,
+  UserId,
+} from '../types';
+import { RAMP_API_URL } from '../config';
+import {
+  getRampToken,
+  getRampUserId,
+  handleError,
+  validateResponse,
+} from '../utils';
 
 export class DebitCardService {
-  static async create(data: NewAirtableUser): Promise<Result<null, unknown>> {
+  static async create(data: NewAirtableUser): Promise<string> {
     try {
       logger.info({ data });
+
       await baseDebitCards.create(data);
 
-      return { result: 'success', data: null };
+      return `User ${data.userId} created successfully in Airtable`;
     } catch (error) {
-      console.error(error);
-      return { result: 'error', error };
+      handleError(
+        error,
+        `An error occurred while creating the user ${data.userId} in Airtable`
+      );
     }
   }
 
-  static async find(userId: string): Promise<Result<Card[], unknown>> {
+  static async find(userId: string): Promise<AirtableCard[]> {
     try {
       const records = await baseDebitCards
         .select({
@@ -28,7 +43,7 @@ export class DebitCardService {
       const debitCards = records
         .map((record: any) => {
           let fields = record.fields;
-          let cards: any[] = [];
+          let cards: AirtableCard[] = [];
 
           for (let key in fields) {
             if (key.startsWith('card')) {
@@ -40,28 +55,21 @@ export class DebitCardService {
         })
         .flat();
 
-      return { result: 'success', data: debitCards };
+      return debitCards as AirtableCard[];
     } catch (error) {
-      console.error(error);
-      return { result: 'error', error };
+      handleError(
+        error,
+        `An error occurred while getting debit cards for user ${userId}`
+      );
     }
   }
 
-  static async findFromRamp(userId: string): Promise<Result<any, unknown>> {
+  static async findFromRamp(userId: UserId): Promise<RampCard[]> {
     try {
-      const records = await baseDebitCards
-        .select({
-          filterByFormula: `{userId} = "${userId}"`,
-        })
-        .firstPage();
-
-      const rampUserId = records.map(
-        (record: any) => record.fields.rampUserId
-      )[0];
-
+      const rampUserId = await getRampUserId(userId);
       const token = await getRampToken();
 
-      const cardsEndpoint = `${process.env.RAMP_API_URL}/cards?user_id=${rampUserId}`;
+      const cardsEndpoint = `${RAMP_API_URL}/cards?user_id=${rampUserId}`;
 
       const response = await fetch(cardsEndpoint, {
         headers: {
@@ -70,13 +78,19 @@ export class DebitCardService {
         },
       });
 
-      const data = await response.json();
-      const cards = data;
+      validateResponse(
+        response,
+        `An error occurred while getting debit cards from Ramp for user ${userId}`
+      );
 
-      return { result: 'success', data: cards };
+      const cards = (await response.json()) as RampCardsResponse;
+
+      return cards.data;
     } catch (error) {
-      console.error(error);
-      return { result: 'error', error };
+      handleError(
+        error,
+        `An error occurred while getting debit cards from Ramp for user ${userId}`
+      );
     }
   }
 }

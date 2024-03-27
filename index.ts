@@ -3,7 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const Airtable = require('airtable');
-require('dotenv').config();
+const agentv2 = require('./agentv2');
+const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID } = require('./config');
 
 logger.info('########## Shield Debit Card ##########');
 logger.info('Initializing Backend...');
@@ -11,6 +12,7 @@ logger.info('Initializing Backend...');
 import config from './config';
 import database from './database';
 import router from './routes';
+import { startUpdateService } from './services';
 
 const app = express();
 app.use(cors());
@@ -22,10 +24,10 @@ server.listen(config.PORT);
 server.on('error', onError);
 server.on('listening', onListening);
 
-const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
-  process.env.AIRTABLE_BASE_ID
-);
+const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 export const baseDebitCards = base('Debit Cards');
+
+// startUpdateService(); // Start the update service
 
 function onError(error: any) {
   if (error.syscall != 'listen') {
@@ -48,6 +50,7 @@ function onError(error: any) {
 function onListening() {
   logger.info('Listening on port: ' + config.PORT);
 
+  agentv2.setupSubscriptions();
   database.init();
   router.init(app);
 }

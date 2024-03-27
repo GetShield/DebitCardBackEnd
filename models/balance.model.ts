@@ -1,30 +1,24 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
-interface IBalance extends Document {
-  date: Date;
-  amount: Number;
-  crypto: String;
-  txHash: String;
-  wallet: Schema.Types.ObjectId;
-  blockchain: Schema.Types.ObjectId;
-}
+import { Balance } from '../types';
 
-const BalanceSchema: Schema = new Schema(
+const BalanceModel: Schema = new Schema<Balance>(
   {
-    date: { type: Date, required: true },
     amount: { type: Number, required: true },
-    crypto: { type: String, required: true },
-    txHash: { type: String, required: true },
-    wallet: { type: Schema.Types.ObjectId, ref: 'wallets', required: true },
     blockchain: {
       type: Schema.Types.ObjectId,
       ref: 'blockchains',
       required: true,
     },
+    currency: { type: String, required: true },
+    date: { type: Date, required: true },
+    txHash: { type: String, required: true },
+    wallet: { type: Schema.Types.ObjectId, ref: 'wallets', required: true },
   },
   {
     collection: 'balances',
+    timestamps: true,
   }
 );
 
-export default mongoose.model<IBalance>('balances', BalanceSchema);
+export default model<Balance>('balances', BalanceModel);

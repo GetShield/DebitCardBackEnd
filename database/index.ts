@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
 import logger from 'node-color-log';
 
-import config from '../config';
+import { MONGOURI } from '../config';
 
 export default {
   init() {
     mongoose
-      .connect(config.MONGOURI, {
+      .connect(MONGOURI, {
         serverSelectionTimeoutMS: 50000, // Increase timeout to 50 seconds
       })
       .then(() => {

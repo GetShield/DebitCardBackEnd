@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import TxHash from '../models/txHash.model';
 import blockchainModel from '../models/blockchain.model';
+import { handleHttpError } from '../utils';
 
 const TxHashController = {
   async getAll(req: Request, res: Response) {
@@ -9,9 +10,7 @@ const TxHashController = {
       const txHashes = await TxHash.find();
       res.send({ txHashes });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 
@@ -104,9 +103,7 @@ const TxHashController = {
       );
       res.send({ response });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 
@@ -132,9 +129,7 @@ const TxHashController = {
       );
       res.send({ response });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 };

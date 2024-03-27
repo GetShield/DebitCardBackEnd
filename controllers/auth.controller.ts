@@ -1,12 +1,15 @@
 import { Request, Response } from 'express';
-import { User } from '../types';
+import logger from 'node-color-log';
+
+import { IUser, NewUser } from '../types';
 import { DebitCardService } from '../services/debit-cards.service';
 import UserModel from '../models/user.model';
-import logger from 'node-color-log';
+import { JWT_SECRET } from '../config';
+import { handleHttpError } from '../utils';
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const secretKey = process.env.JWT_SECRET;
+const secretKey = JWT_SECRET;
 
 export default {
   async login(req: Request, res: Response) {
@@ -52,7 +55,7 @@ export default {
       const alreadyExists = await UserModel.findOne({ email: email });
 
       if (alreadyExists) {
-        res.status(409).send({ error: 'Email already taken.' });
+        handleHttpError(new Error('Email already taken.'), res, 409);
         return;
       }
 
@@ -61,19 +64,17 @@ export default {
       const salt = bcrypt.genSaltSync(10);
       const hashed_password = bcrypt.hashSync(password, salt);
 
-      const newUser: User = {
+      const newUser: NewUser = {
         email: email,
         password: hashed_password,
         user_name: user_name,
-        btc_wallet: '',
-        ether_wallet: '',
-        tron_wallet: '',
+        wallets: [],
       };
       const user = new UserModel(newUser);
       await user.save();
 
-      const cardRes = await DebitCardService.create({
-        userId: user._id,
+      await DebitCardService.create({
+        userId: user._id.toString(),
         rampUserId: '',
         userName: user_name,
         userEmail: email,
@@ -84,19 +85,12 @@ export default {
           cardCVV: '',
         }),
       });
-      if (cardRes.result === 'error') {
-        res.status(500).send({ error: cardRes.error });
-        return;
-      }
 
       const token = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
 
       res.json({ _id: user._id, user_name, email, token });
     } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        res.status(500).send({ error: error.message });
-      }
+      handleHttpError(error, res);
     }
   },
 };

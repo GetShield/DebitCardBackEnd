@@ -1,26 +1,20 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Schema, model } from 'mongoose';
 
-interface IBlockchain extends Document {
-  name: String;
-  chainId: Number;
-  chainType: String;
-  native_symbol: String;
-  wallets: Array<Schema.Types.ObjectId>;
-  mainnet: Boolean;
-}
+import { Blockchain } from '../types';
 
-const Blockchain = new Schema(
+const Blockchain = new Schema<Blockchain>(
   {
-    name: { type: String, required: true, unique: true },
+    chain: { type: String, required: true, unique: true },
     chainId: { type: Number, required: false },
     chainType: { type: String, required: true },
-    native_symbol: { type: String, required: true },
-    wallets: [{ type: Schema.Types.ObjectId, ref: "wallets" }],
     mainnet: { type: Boolean, required: true },
+    nativeSymbol: { type: String, required: true },
+    wallets: [{ type: Schema.Types.ObjectId, ref: 'wallets' }],
   },
   {
-    collection: "blockchains",
+    collection: 'blockchains',
+    timestamps: true,
   }
 );
 
-export default mongoose.model<IBlockchain>("blockchains", Blockchain);
+export default model<Blockchain>('blockchains', Blockchain);

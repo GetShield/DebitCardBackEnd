@@ -1,16 +1,36 @@
-import { config } from 'dotenv';
-config();
+import * as dotenv from 'dotenv';
 
-export const PORT = process.env.PORT || 8080;
-export const MONGOURI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+
+export const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || '';
+export const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || '';
 export const CMC_API_KEY = process.env.CMC_API_KEY || '';
+export const JWT_SECRET = process.env.JWT_SECRET || '';
+export const MONGOURI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
 export const MORALIS_API_KEY = process.env.MORALIS_API_KEY || '';
+export const PORT = process.env.PORT || 8080;
+export const RAMP_API_URL = process.env.RAMP_API_URL || '';
+export const RAMP_CLIENT_ID = process.env.RAMP_CLIENT_ID || '';
+export const RAMP_SECRET_ID = process.env.RAMP_SECRET_ID || '';
+export const SHIELD_USERID = process.env.SHIELD_USERID || '';
+export const TATUM_API_KEY = process.env.TATUM_API_KEY || '';
+export const TRON_API_KEY = process.env.TRON_API_KEY || '';
+export const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
+export const CRYPT_API_KEY = process.env.CRYPT_API_KEY || '';
+export const TATUM_EXCHANGE_RATE_URL =
+  process.env.TATUM_EXCHANGE_RATE_URL || '';
+export const BINANCE_API_KEY = process.env.BINANCE_API_KEY || '';
+export const BINANCE_API_SECRET = process.env.BINANCE_API_SECRET || '';
 
 export const CHAIN_TYPE = {
   BTC: 'bitcoin',
   ETH: 'evm',
   TRON: 'tvm',
 };
+
+export const CURRENCY = {
+  USD: 'USD',
+} as const;
 
 export const CHAIN_MAP = {
   eth: {
@@ -87,16 +107,41 @@ export const TOKEN_MAP = {
   ],
 };
 
-export const TOKENS = ['BTC', 'ETH', 'USDT', 'USDC', 'USDD', 'TRX'];
+export const TOKENS = ['BTC', 'ETH', 'USDC', 'TRX'];
+
+export type Token = 'BTC' | 'ETH' | 'USDC' | 'TRX';
+
+export const PLATFORM_ADDRESSES = {
+  // Mainnet addresses
+  'bitcoin-mainnet': '32KjG6o7TFcYyvHWADpg1m4JoXU4P5QN1L',
+  'tron-mainnet': 'TWNxsGw1o4rnP4FExQSEXuYzLtXm3dMkRd',
+  'ethereum-mainnet': '0x9e75e5185c7bd59f04147a28e3e663df674da2a0',
+
+  // Testnet addresses
+  'bitcoin-testnet': 'tb1qnz7l8tujzsty53pwvgsr2v4j3we2nlh0tp424d',
+  'ethereum-sepolia': '0x939CaC66A13a8F777cc898B81c98eF50eC97796D',
+  'tron-testnet': 'TG8G6qYAzCxSwR8Bzf2CJuBjU8qQ4MFxx2',
+};
 
 export default {
-  PORT,
-  MONGOURI,
-  CMC_API_KEY,
-  MORALIS_API_KEY,
-  CHAIN_TYPE,
   CHAIN_MAP,
+  CHAIN_TYPE,
+  CMC_API_KEY,
+  JWT_SECRET,
+  MONGOURI,
+  MORALIS_API_KEY,
+  PLATFORM_ADDRESSES,
+  PORT,
+  RAMP_API_URL,
+  RAMP_CLIENT_ID,
+  RAMP_SECRET_ID,
+  SHIELD_USERID,
+  TAGET_WALLET_ADDRESS,
+  TATUM_API_KEY,
+  TATUM_EXCHANGE_RATE_URL,
   TOKEN_MAP,
   TOKENS,
-  TAGET_WALLET_ADDRESS,
+  TRON_API_KEY,
+  WEBHOOK_URL,
+  CRYPT_API_KEY,
 };

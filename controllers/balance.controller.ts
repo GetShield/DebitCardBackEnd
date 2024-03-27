@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
+
 import BalanceModel from '../models/balance.model';
 import BlockchainModel from '../models/blockchain.model';
 import WalletModel from '../models/wallet.model';
-import { Document } from 'mongoose';
+import { BalanceService } from '../services';
+import { handleError, handleHttpError } from '../utils';
+import mongoose from 'mongoose';
 
 const BalanceController = {
   async getAll(req: Request, res: Response) {
-    // ...
-
     try {
       const balances = await BalanceModel.find()
         .populate('wallet')
@@ -15,59 +16,13 @@ const BalanceController = {
 
       res.send({ balances });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
-    }
-  },
-
-  async updateBalance(
-    amount: number,
-    crypto: string,
-    blockchainId: string,
-    walletId: string
-  ) {
-    try {
-      const balanceData = {
-        date: new Date(),
-        amount: amount,
-        crypto: crypto,
-        blockchain: blockchainId,
-        wallet: walletId,
-      };
-
-      await BalanceModel.findOneAndUpdate(
-        { crypto, blockchain: blockchainId, wallet: walletId },
-        { amount: amount },
-        { upsert: true }
-      );
-    } catch (error) {
-      return error;
-    }
-  },
-
-  async updateInside(data: any) {
-    try {
-      const blockchains = await BlockchainModel.find({ name: data.blockchain });
-      const wallets = await WalletModel.find({ address: data.walletAddress });
-      await BalanceController.updateBalance(
-        data.amount,
-        data.crypto,
-        blockchains[0]._id,
-        wallets[0]._id
-      );
-
-      let balances = await BalanceModel.find({
-        blockchain: blockchains[0]._id,
-        wallet: wallets[0]._id,
-      });
-      return balances;
-    } catch (error) {
-      return error;
+      handleHttpError(err, res);
     }
   },
 
   async update(req: Request, res: Response) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
       const blockchain = req.body.blockchain;
       const walletAddress = req.body.walletAddress;
@@ -94,13 +49,16 @@ const BalanceController = {
         return;
       }
 
-      let balances = await BalanceController.updateInside(req.body);
+      let balances = await BalanceService.updateInside(req.body, session);
+
+      await session.commitTransaction();
 
       res.send({ balances });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      await session.abortTransaction();
+      handleHttpError(err, res);
+    } finally {
+      session.endSession();
     }
   },
 
@@ -139,10 +97,7 @@ const BalanceController = {
         return balances[0].amount;
       }
     } catch (err) {
-      if (err instanceof Error) {
-        return new Error(err.message);
-      }
-      return new Error('An error occurred.');
+      handleError(err, 'Error getting amount by crypto, wallet and blockchain');
     }
   },
 
@@ -151,14 +106,14 @@ const BalanceController = {
       const blockchain = req.body.blockchain;
       const walletAddress = req.body.walletAddress;
       if (!blockchain || !walletAddress) {
-        res.status(400).send({ message: 'Wallet or Blockchain not set!' });
+        handleHttpError(new Error('Wallet or Blockchain not set!'), res, 400);
         return;
       }
 
       const blockchains = await BlockchainModel.find({ name: blockchain });
       const wallets = await WalletModel.find({ address: walletAddress });
       if (blockchains.length === 0 || wallets.length === 0) {
-        res.status(404).send({ message: 'Wallet or Blockchain not found!' });
+        handleHttpError(new Error('Wallet or Blockchain not found!'), res, 404);
         return;
       }
 
@@ -169,36 +124,23 @@ const BalanceController = {
 
       res.send({ balances });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 
   async getByUser(req: Request, res: Response) {
     try {
-      const userId = req.params.userId;
+      const userId = req.params.userId as any;
       if (!userId) {
-        res.status(400).send({ message: 'User not set!' });
+        handleHttpError(new Error('User not set!'), res, 400);
         return;
       }
 
-      // Find wallets for the user
-      const wallets = await WalletModel.find({ user: userId });
-
-      // Extract wallet ids
-      const walletIds = wallets.map((wallet) => wallet._id);
-
-      // Find balances for the wallets
-      const balances = await BalanceModel.find({ wallet: { $in: walletIds } })
-        .populate('wallet')
-        .populate('blockchain');
+      const balances = await BalanceService.getBalancesByUserId(userId);
 
       res.send({ balances });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 
@@ -206,26 +148,15 @@ const BalanceController = {
     try {
       const userId = req.body.user?.id;
       if (!userId) {
-        res.status(400).send({ message: 'User not set!' });
+        handleHttpError(new Error('User not set!'), res, 400);
         return;
       }
 
-      // Find wallets for the user
-      const wallets = await WalletModel.find({ user: userId });
-
-      // Extract wallet ids
-      const walletIds = wallets.map((wallet) => wallet._id);
-
-      // Find balances for the wallets
-      const balances = await BalanceModel.find({ wallet: { $in: walletIds } })
-        .populate('wallet')
-        .populate('blockchain');
+      const balances = await BalanceService.getBalancesByUserId(userId);
 
       res.send({ balances });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(500).send({ message: err.message });
-      }
+      handleHttpError(err, res);
     }
   },
 };

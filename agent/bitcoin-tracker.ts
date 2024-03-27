@@ -1,5 +1,3 @@
-require('dotenv').config();
-const axios = require('axios');
 import logger from 'node-color-log';
 import { CHAIN_MAP, TOKEN_MAP, TAGET_WALLET_ADDRESS } from '../config';
 import BalanceController from '../controllers/balance.controller';

@@ -2,37 +2,48 @@
 // Use Ctrl+Space inside a snippet or a string literal to trigger completions.
 
 // The current database to use.
-use("DebitCardDB");
+use('DebitCardDB');
 
 // Create a new document in the collection.
-db.getCollection("blockchains").insertMany([
+db.getCollection('blockchains').insertMany([
   {
-    name: "bitcoin",
-    native_symbol: "BTC",
+    chain: 'bitcoin-mainnet',
+    nativeSymbol: 'BTC',
+    chain_type: 'bitcoin',
     wallets: [],
   },
   {
-    name: "tron",
-    native_symbol: "TRX",
+    chain: 'tron-mainnet',
+    nativeSymbol: 'TRX',
     wallets: [],
+    chain_type: 'tvm',
     // Tron mainnet specific ID if applicable, but generally not labeled as "chainId" in Ethereum's sense.
   },
   {
-    name: "ethereum",
+    chain: 'ethereum-mainnet',
     chainId: 1,
-    native_symbol: "ETH",
+    nativeSymbol: 'ETH',
+    chain_type: 'evm',
     wallets: [],
   },
   {
-    name: "nile",
-    native_symbol: "TRX",
+    chain: 'bitcoin-testnet',
+    nativeSymbol: 'BTC',
+    chain_type: 'bitcoin',
+    wallets: [],
+  },
+  {
+    chain: 'tron-testnet',
+    nativeSymbol: 'TRX',
+    chain_type: 'tvm',
     wallets: [],
     // Tron Nile testnet specific ID if applicable.
   },
   {
-    name: "sepolia",
+    chain: 'ethereum-sepolia',
     chainId: 11155111,
-    native_symbol: "ETH",
+    nativeSymbol: 'ETH',
+    chain_type: 'evm',
     wallets: [],
   },
 ]);
