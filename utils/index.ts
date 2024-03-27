@@ -3,25 +3,18 @@ import { ethers } from 'ethers';
 import { Response } from 'express';
 import { validate } from 'bitcoin-address-validation';
 
-import {
-  CHAIN_TYPE,
-  CRYPT_API_KEY,
-  BINANCE_API_KEY,
-  BINANCE_API_SECRET,
-} from '../config';
+import { CHAIN_TYPE, CRYPT_API_KEY } from '../config';
 import {
   RAMP_CLIENT_ID,
   RAMP_SECRET_ID,
   RAMP_API_URL,
   TOKENS,
-  CMC_API_KEY,
 } from '../config';
 import { baseDebitCards } from '..';
 import { Balance, ExchangeRate, Price, UserId } from '../types';
 
 const https = require('https');
 
-const CoinMarketCap = require('coinmarketcap-api');
 import ccxt from 'ccxt';
 import { LastPrices, Strings } from 'ccxt/js/src/base/types';
 

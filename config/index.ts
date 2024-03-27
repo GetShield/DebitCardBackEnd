@@ -5,13 +5,9 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 export const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || '';
 export const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || '';
 export const AIRTABLE_TABLE_NAME = process.env.AIRTABLE_TABLE_NAME || '';
-export const BINANCE_API_KEY = process.env.BINANCE_API_KEY || '';
-export const BINANCE_API_SECRET = process.env.BINANCE_API_SECRET || '';
-export const CMC_API_KEY = process.env.CMC_API_KEY || '';
 export const CRYPT_API_KEY = process.env.CRYPT_API_KEY || '';
 export const JWT_SECRET = process.env.JWT_SECRET || '';
 export const MONGOURI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
-export const MORALIS_API_KEY = process.env.MORALIS_API_KEY || '';
 export const PORT = process.env.PORT || 8080;
 export const RAMP_API_URL = process.env.RAMP_API_URL || '';
 export const RAMP_CLIENT_ID = process.env.RAMP_CLIENT_ID || '';
@@ -20,7 +16,6 @@ export const SHIELD_USERID = process.env.SHIELD_USERID || '';
 export const TATUM_API_KEY = process.env.TATUM_API_KEY || '';
 export const TATUM_EXCHANGE_RATE_URL =
   process.env.TATUM_EXCHANGE_RATE_URL || '';
-export const TRON_API_KEY = process.env.TRON_API_KEY || '';
 export const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
 
 export const CHAIN_TYPE = {
@@ -32,19 +27,6 @@ export const CHAIN_TYPE = {
 export const CURRENCY = {
   USD: 'USD',
 } as const;
-
-export const CHAIN_MAP = {
-  eth: {
-    name: 'Ethereum Mainnet',
-    websocket_url: `wss://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_ETHEREUM}`,
-    https_url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_ETHEREUM}`,
-  },
-  sepolia: {
-    name: 'Sepolia Testnet',
-    websocket_url: `wss:///eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_SEPOLIA}`,
-    https_url: `https:///eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_SEPOLIA}`,
-  },
-};
 
 export const TAGET_WALLET_ADDRESS = {
   btc: '32KjG6o7TFcYyvHWADpg1m4JoXU4P5QN1L',
@@ -125,12 +107,9 @@ export const PLATFORM_ADDRESSES = {
 };
 
 export default {
-  CHAIN_MAP,
   CHAIN_TYPE,
-  CMC_API_KEY,
   JWT_SECRET,
   MONGOURI,
-  MORALIS_API_KEY,
   PLATFORM_ADDRESSES,
   PORT,
   RAMP_API_URL,
@@ -142,7 +121,6 @@ export default {
   TATUM_EXCHANGE_RATE_URL,
   TOKEN_MAP,
   TOKENS,
-  TRON_API_KEY,
   WEBHOOK_URL,
   CRYPT_API_KEY,
 };
