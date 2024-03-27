@@ -18,6 +18,8 @@ export const TATUM_EXCHANGE_RATE_URL =
   process.env.TATUM_EXCHANGE_RATE_URL || '';
 export const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
 
+console.log({ MONGOURI, PORT, JWT_SECRET, TATUM_API_KEY, WEBHOOK_URL });
+
 export const CHAIN_TYPE = {
   BTC: 'bitcoin',
   ETH: 'evm',
