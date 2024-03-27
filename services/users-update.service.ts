@@ -2,6 +2,8 @@ import logger from 'node-color-log';
 
 import userModel from '../models/user.model';
 import { TransactionsService } from './transactions.service';
+import { SHIELD_USERID } from '../config';
+import { LimitsService } from './limits.service';
 
 const minutes = 5; // Update as needed
 
@@ -24,13 +26,25 @@ async function updateAllUsers() {
     const users = await userModel.find();
     for (const user of users) {
       try {
+        if (user._id.toString() === SHIELD_USERID) {
+          continue;
+        }
         const res = await TransactionsService.syncTransactions(user.id);
-        logger.info('Updated user:', user.id, res);
+        logger.fontColorLog(
+          'blue',
+          `Synced user ${user.id} with ${res.numberOfTransactions} new transactions.`
+        );
+
+        await LimitsService.syncUserSpendLimits(user.id);
+        logger.fontColorLog('blue', `Synced user ${user.id} spend limits.`);
       } catch (error) {
-        console.error('Failed to update user:', user.id, error);
+        logger.fontColorLog(
+          'red',
+          `Failed to sync user ${user.id} transactions`
+        );
       }
     }
   } catch (error) {
-    console.error('Failed to update all users:', error);
+    logger.bgColorLog('red', 'Failed to sync all users transactions:');
   }
 }

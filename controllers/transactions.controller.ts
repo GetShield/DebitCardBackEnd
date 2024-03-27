@@ -45,7 +45,7 @@ const TransactionsController = {
 
       const transactions = await TransactionsService.syncTransactions(userId);
 
-      if (!transactions.transactions.length) {
+      if (transactions.numberOfTransactions === 0) {
         return res.send({ message: 'No new transactions found' });
       }
 
@@ -69,8 +69,8 @@ const TransactionsController = {
         data
       );
 
-      if (!transactions.transactions.length) {
-        return res.send(transactions);
+      if (transactions.numberOfTransactions === 0) {
+        return res.send({ message: 'No new transactions found' });
       }
 
       res.send(transactions);

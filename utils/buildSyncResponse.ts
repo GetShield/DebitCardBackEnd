@@ -21,6 +21,5 @@ export function buildSyncResponse(
     numberOfTransactions: savedTransactions.length,
     transactionsTotalUSD: totalUSD,
     rampTotalUSD: totalRampUSD,
-    transactions: savedTransactions,
   };
 }

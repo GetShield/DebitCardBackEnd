@@ -63,10 +63,19 @@ const WebhookController = {
       };
 
       const result = await BalanceService.updateInside(balanceData, session);
+      const userId = result.userId;
 
-      let rampUserId = await getRampUserId(result.userId);
+      const rampUserId = await getRampUserId(userId);
 
-      await LimitsService.updateUserSpendLimits(rampUserId, usdValue);
+      const totalUserUSDBalance = await BalanceService.getTotalUSDUserBalance(
+        userId,
+        session
+      );
+
+      await LimitsService.updateUserSpendLimits(
+        rampUserId,
+        totalUserUSDBalance
+      );
 
       logger.info(`User spend limits updated for user: ${rampUserId}`);
 

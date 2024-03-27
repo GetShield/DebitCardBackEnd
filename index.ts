@@ -3,16 +3,19 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const Airtable = require('airtable');
-const agentv2 = require('./agentv2');
-const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID } = require('./config');
+const agent = require('./agent');
 
-logger.info('########## Shield Debit Card ##########');
-logger.info('Initializing Backend...');
-
-import config from './config';
+import config, {
+  AIRTABLE_API_KEY,
+  AIRTABLE_BASE_ID,
+  AIRTABLE_TABLE_NAME,
+} from './config';
 import database from './database';
 import router from './routes';
 import { startUpdateService } from './services';
+
+logger.info('########## Shield Debit Card ##########');
+logger.info('Initializing Backend...');
 
 const app = express();
 app.use(cors());
@@ -25,9 +28,9 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
-export const baseDebitCards = base('Debit Cards');
+export const baseDebitCards = base(AIRTABLE_TABLE_NAME);
 
-// startUpdateService(); // Start the update service
+startUpdateService(); // Start the update service
 
 function onError(error: any) {
   if (error.syscall != 'listen') {
@@ -50,7 +53,7 @@ function onError(error: any) {
 function onListening() {
   logger.info('Listening on port: ' + config.PORT);
 
-  agentv2.setupSubscriptions();
+  agent.setupSubscriptions();
   database.init();
   router.init(app);
 }

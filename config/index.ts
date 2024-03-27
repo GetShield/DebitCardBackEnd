@@ -4,7 +4,11 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 export const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || '';
 export const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || '';
+export const AIRTABLE_TABLE_NAME = process.env.AIRTABLE_TABLE_NAME || '';
+export const BINANCE_API_KEY = process.env.BINANCE_API_KEY || '';
+export const BINANCE_API_SECRET = process.env.BINANCE_API_SECRET || '';
 export const CMC_API_KEY = process.env.CMC_API_KEY || '';
+export const CRYPT_API_KEY = process.env.CRYPT_API_KEY || '';
 export const JWT_SECRET = process.env.JWT_SECRET || '';
 export const MONGOURI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
 export const MORALIS_API_KEY = process.env.MORALIS_API_KEY || '';
@@ -14,13 +18,10 @@ export const RAMP_CLIENT_ID = process.env.RAMP_CLIENT_ID || '';
 export const RAMP_SECRET_ID = process.env.RAMP_SECRET_ID || '';
 export const SHIELD_USERID = process.env.SHIELD_USERID || '';
 export const TATUM_API_KEY = process.env.TATUM_API_KEY || '';
-export const TRON_API_KEY = process.env.TRON_API_KEY || '';
-export const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
-export const CRYPT_API_KEY = process.env.CRYPT_API_KEY || '';
 export const TATUM_EXCHANGE_RATE_URL =
   process.env.TATUM_EXCHANGE_RATE_URL || '';
-export const BINANCE_API_KEY = process.env.BINANCE_API_KEY || '';
-export const BINANCE_API_SECRET = process.env.BINANCE_API_SECRET || '';
+export const TRON_API_KEY = process.env.TRON_API_KEY || '';
+export const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
 
 export const CHAIN_TYPE = {
   BTC: 'bitcoin',

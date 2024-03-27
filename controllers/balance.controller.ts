@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 
 import BalanceModel from '../models/balance.model';
@@ -5,7 +6,6 @@ import BlockchainModel from '../models/blockchain.model';
 import WalletModel from '../models/wallet.model';
 import { BalanceService } from '../services';
 import { handleError, handleHttpError } from '../utils';
-import mongoose from 'mongoose';
 
 const BalanceController = {
   async getAll(req: Request, res: Response) {

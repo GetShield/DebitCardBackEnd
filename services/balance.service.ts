@@ -5,12 +5,17 @@ import BlockchainModel from '../models/blockchain.model';
 import WalletModel from '../models/wallet.model';
 import TxOrphanedModel from '../models/txOrphaned.model';
 import { Balance, IWallet, Price, TxData, UserId } from '../types';
-import { handleError } from '../utils';
+import { getAllExchangeRates, handleError } from '../utils';
 
 export class BalanceService {
-  static async getBalancesByUserId(userId: UserId): Promise<Balance[]> {
+  static async getBalancesByUserId(
+    userId: UserId,
+    session?: ClientSession
+  ): Promise<Balance[]> {
     try {
-      const wallets = await WalletModel.find({ user: userId });
+      const wallets = await WalletModel.find({ user: userId }).session(
+        session ?? null
+      );
 
       const walletIds = wallets.map((wallet) => wallet._id);
 
@@ -18,11 +23,32 @@ export class BalanceService {
         wallet: { $in: walletIds },
       })
         .populate('wallet')
-        .populate('blockchain');
+        .populate('blockchain')
+        .session(session ?? null);
 
       return balances;
     } catch (error) {
       handleError(error, `Failed to get balances for user ${userId}`);
+    }
+  }
+
+  static async getTotalUSDUserBalance(userId: UserId, session?: ClientSession) {
+    try {
+      const balances = await this.getBalancesByUserId(userId, session);
+      const prices = await getAllExchangeRates();
+
+      const totalBalance = balances.reduce((acc, balance) => {
+        const { price = 0 } =
+          prices.find((price) => price.name === balance.currency) || {};
+        return acc + balance.amount * price;
+      }, 0);
+
+      return totalBalance;
+    } catch (error) {
+      handleError(
+        error,
+        `Failed to get total balance in USD for user ${userId}`
+      );
     }
   }
 
@@ -53,50 +79,8 @@ export class BalanceService {
     }
   }
 
-  static async getTotalBalanceInUSD(userId: UserId, prices: Price[]) {
-    try {
-      const balances = await this.getBalancesByUserId(userId);
-
-      const totalBalance = balances.reduce((acc, balance) => {
-        const { price = 0 } =
-          prices.find((price) => price.name === balance.currency) || {};
-        return acc + balance.amount * price;
-      }, 0);
-
-      return totalBalance;
-    } catch (error) {
-      handleError(
-        error,
-        `Failed to get total balance in USD for user ${userId}`
-      );
-    }
-  }
-
-  // Same as above but with balances as a param
-  static getTotalUSDBalance(
-    userId: UserId,
-    prices: Price[],
-    balances: Balance[]
-  ) {
-    try {
-      const totalBalance = balances.reduce((acc, balance) => {
-        const { price = 0 } =
-          prices.find((price) => price.name === balance.currency) || {};
-        return acc + balance.amount * price;
-      }, 0);
-
-      return totalBalance;
-    } catch (error) {
-      handleError(
-        error,
-        `Failed to get total balance in USD for user ${userId}`
-      );
-    }
-  }
-
   static async updateInside(data: TxData, session: ClientSession) {
     try {
-      console.log({ data });
       const blockchains = await BlockchainModel.find({ chain: data.chain });
       const wallets = await WalletModel.find({ address: data.from });
 
@@ -117,12 +101,7 @@ export class BalanceService {
         { upsert: true, session: session }
       );
 
-      console.log({
-        blockchains,
-        wallets,
-      });
-
-      let balance = await BalanceModel.findOne(
+      const balance = await BalanceModel.findOne(
         {
           blockchain: blockchains[0]._id,
           wallet: wallets[0]._id,

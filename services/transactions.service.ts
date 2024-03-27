@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import logger from 'node-color-log';
 
 import {
-  Balance,
   CryptoDeduction,
   ExchangeRate,
   RampTransaction,
@@ -214,8 +213,10 @@ export class TransactionsService {
     userId: UserId
   ): Promise<SyncTransactionsResponse> {
     try {
-      const notSyncedTransactions = await this.notSynced(userId);
-      const exchangeRates = await getAllExchangeRates();
+      const [notSyncedTransactions, exchangeRates] = await Promise.all([
+        this.notSynced(userId),
+        getAllExchangeRates(),
+      ]);
 
       const savedTransactions: Transaction[] = [];
 

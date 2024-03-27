@@ -110,5 +110,4 @@ export interface SyncTransactionsResponse {
   numberOfTransactions: number;
   transactionsTotalUSD: number;
   rampTotalUSD: number;
-  transactions: Transaction[];
 }

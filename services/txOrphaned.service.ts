@@ -64,8 +64,6 @@ export class TxOrphanedService {
         throw new Error(`TxReceipt ${txHash} not found`);
       }
 
-      let exchangeRate = Number((await getExchangeRate('ETH'))?.price);
-      let usdValue = exchangeRate * Number(txReceipt.amount);
       const blockchain = txReceipt.blockchain as Blockchain;
 
       const balanceData: TxData = {
@@ -79,10 +77,19 @@ export class TxOrphanedService {
       };
 
       const result = await BalanceService.updateInside(balanceData, session);
+      const userId = result.userId;
 
-      let rampUserId = await getRampUserId(result.userId);
+      const rampUserId = await getRampUserId(userId);
 
-      await LimitsService.updateUserSpendLimits(rampUserId, usdValue);
+      const totalUserUSDBalance = await BalanceService.getTotalUSDUserBalance(
+        userId,
+        session
+      );
+
+      await LimitsService.updateUserSpendLimits(
+        rampUserId,
+        totalUserUSDBalance
+      );
 
       await session.commitTransaction();
 
