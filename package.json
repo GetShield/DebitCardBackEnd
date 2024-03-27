@@ -10,11 +10,11 @@
     "build": "tsc",
     "backend:dev": "nodemon",
     "backend:debug": "node --inspect -r ts-node/register index.ts",
-    "backend:start": "tsc && pm2 start dist/index.js --name backend",
+    "backend:start": "tsc && pm2 start dist/index.js --name backend --no-autorestart",
     "backend:stop": "pm2 stop backend",
     "backend:restart": "tsc && pm2 restart backend",
     "backend:delete": "pm2 delete backend",
-    "all:start": "tsc && pm2 start dist/index.js --name backend",
+    "all:start": "tsc && pm2 start dist/index.js --name backend --no-autorestart",
     "all:stop": "pm2 stop backend",
     "all:restart": "tsc && pm2 restart backend",
     "all:delete": "pm2 delete backend"
