@@ -27,8 +27,10 @@ import { BalanceService } from './balance.service';
 export class TransactionsService {
   static async findFromRamp(userId: UserId): Promise<RampTransaction[]> {
     try {
-      const token = await getRampToken();
-      const rampUserId = await getRampUserId(userId);
+      const [token, rampUserId] = await Promise.all([
+        getRampToken(),
+        getRampUserId(userId),
+      ]);
 
       const transactionsEndpoint = `${RAMP_API_URL}/transactions?user_id=${rampUserId}&order_by_date_desc=true`;
 

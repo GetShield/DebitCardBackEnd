@@ -4,6 +4,7 @@ import userModel from '../models/user.model';
 import { TransactionsService } from './transactions.service';
 import { SHIELD_USERID } from '../config';
 import { LimitsService } from './limits.service';
+import { getRampUserId } from '../utils';
 
 const minutes = 5; // Update as needed
 
@@ -26,9 +27,18 @@ async function updateAllUsers() {
     const users = await userModel.find();
     for (const user of users) {
       try {
-        if (user._id.toString() === SHIELD_USERID) {
+        const userId = user._id;
+        if (userId.toString() === SHIELD_USERID) {
           continue;
         }
+
+        const rampUserId = await getRampUserId(userId);
+
+        if (!rampUserId) {
+          logger.fontColorLog('red', `User ${userId} does not have a ramp id.`);
+          continue;
+        }
+
         const res = await TransactionsService.syncTransactions(user.id);
         logger.fontColorLog(
           'blue',
