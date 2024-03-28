@@ -27,8 +27,6 @@ server.listen(config.PORT);
 server.on('error', onError);
 server.on('listening', onListening);
 
-console.log({ AIRTABLE_API_KEY, AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME });
-
 const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 export const baseDebitCards = base(AIRTABLE_TABLE_NAME);
 

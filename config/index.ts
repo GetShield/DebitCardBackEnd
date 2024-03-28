@@ -18,8 +18,6 @@ export const TATUM_EXCHANGE_RATE_URL =
   process.env.TATUM_EXCHANGE_RATE_URL || '';
 export const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
 
-console.log({ MONGOURI, PORT, JWT_SECRET, TATUM_API_KEY, WEBHOOK_URL });
-
 export const CHAIN_TYPE = {
   BTC: 'bitcoin',
   ETH: 'evm',
@@ -29,68 +27,6 @@ export const CHAIN_TYPE = {
 export const CURRENCY = {
   USD: 'USD',
 } as const;
-
-export const TAGET_WALLET_ADDRESS = {
-  btc: '32KjG6o7TFcYyvHWADpg1m4JoXU4P5QN1L',
-  eth: '0x9e75e5185c7bd59f04147a28e3e663df674da2a0',
-  tron: 'TWNxsGw1o4rnP4FExQSEXuYzLtXm3dMkRd',
-  sepolia: '0x3A2cfA4ceCcB92FfeB6953Eec492612E79c119a3',
-  nile: 'TW7ZnpizoTh3HfKFUHMEDMim8M1LrWXueB',
-  testnet: '2N3BrPtana8j8Mw2T4o42Cpin5TqXzDtdRN',
-};
-
-export const TOKEN_MAP = {
-  eth: [
-    {
-      name: 'USDT',
-      address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-      decimals: 6,
-    },
-    {
-      name: 'USDC',
-      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      decimals: 6,
-    },
-  ],
-  tron: [
-    {
-      name: 'USDT',
-      address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
-      decimals: 6,
-    },
-    {
-      name: 'USDC',
-      address: 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8',
-      decimals: 6,
-    },
-    {
-      name: 'USDJ',
-      address: 'TMwFHYXLJaRUPeW6421aqXL4ZEzPRFGkGT',
-      decimals: 18,
-    },
-  ],
-
-  nile: [
-    {
-      name: 'USDT',
-      address: 'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf',
-      decimals: 6,
-    },
-    {
-      name: 'USDJ',
-      address: 'TLBaRhANQoJFTqre9Nf1mjuwNWjCJeYqUL',
-      decimals: 18,
-    },
-  ],
-
-  sepolia: [
-    {
-      decimals: 18,
-      name: 'USDT',
-      address: '0xB6434EE024892CBD8e3364048a259Ef779542475',
-    },
-  ],
-};
 
 export const TOKENS = ['BTC', 'ETH', 'USDC', 'TRX'];
 
@@ -118,10 +54,8 @@ export default {
   RAMP_CLIENT_ID,
   RAMP_SECRET_ID,
   SHIELD_USERID,
-  TAGET_WALLET_ADDRESS,
   TATUM_API_KEY,
   TATUM_EXCHANGE_RATE_URL,
-  TOKEN_MAP,
   TOKENS,
   WEBHOOK_URL,
   CRYPT_API_KEY,
