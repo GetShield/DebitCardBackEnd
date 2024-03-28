@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import logger from 'node-color-log';
 
-import { IUser, NewUser } from '../types';
+import { NewUser } from '../types';
 import { DebitCardService } from '../services/debit-cards.service';
 import UserModel from '../models/user.model';
 import { JWT_SECRET } from '../config';
@@ -41,10 +41,7 @@ export default {
 
       res.send(response);
     } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        return res.status(500).send({ error: error.message });
-      }
+      handleHttpError(error, res);
     }
   },
 

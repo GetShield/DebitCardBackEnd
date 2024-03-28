@@ -16,7 +16,7 @@ import { Balance, ExchangeRate, Price, UserId } from '../types';
 const https = require('https');
 
 import ccxt from 'ccxt';
-import { LastPrices, Strings } from 'ccxt/js/src/base/types';
+import { Strings } from 'ccxt/js/src/base/types';
 
 export async function getRampToken() {
   try {
@@ -65,7 +65,7 @@ export async function getRampUserId(userId: UserId): Promise<string> {
 
     return rampUserId;
   } catch (error) {
-    throw new Error('An error occurred while getting ramp user id');
+    handleError(error, 'An error occurred while getting ramp user id');
   }
 }
 
@@ -142,19 +142,19 @@ export async function getExchangeRate(ticker: string): Promise<ExchangeRate> {
 export async function getAllExchangeRates(): Promise<ExchangeRate[]> {
   try {
     const symbols: Strings = TOKENS.map(
-      (tokenName: string) => `${tokenName}/USDT`
+      (tokenName: string) => `${tokenName}/USD`
     );
 
-    const exchangeId = 'binance',
-      exchangeClass = ccxt[exchangeId],
-      exchange = new exchangeClass();
-
-    let prices: LastPrices = await exchange.fetchLastPrices(symbols);
+    const exchange = new ccxt.kraken();
 
     let priceArr: ExchangeRate[] = [];
-    for (let token of TOKENS) {
-      let price = prices[`${token}/USDT`].price;
-      priceArr.push({ name: token, price });
+
+    const tickers = await exchange.fetchTickers(symbols);
+
+    for (let ticker of Object.keys(tickers)) {
+      const price = tickers[ticker].last;
+      const token = ticker.split('/')[0];
+      priceArr.push({ name: token, price: Number(price) });
     }
 
     return priceArr;
@@ -173,9 +173,14 @@ export async function getHistoricPrice(ticker: string, dateStr: string) {
       );
     }
 
-    let exchange = new ccxt.binance();
-    let timestamp = new Date(dateStr).getTime();
-    let data = await exchange.fetchOHLCV(`${ticker}/USDT`, '1m', timestamp, 1);
+    const exchange = new ccxt.kraken();
+    const timestamp = new Date(dateStr).getTime();
+    const data = await exchange.fetchOHLCV(
+      `${ticker}/USDT`,
+      '1m',
+      timestamp,
+      1
+    );
 
     return data[0][1];
   } catch (err) {

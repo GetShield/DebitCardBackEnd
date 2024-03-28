@@ -28,9 +28,9 @@ export const CURRENCY = {
   USD: 'USD',
 } as const;
 
-export const TOKENS = ['BTC', 'ETH', 'USDC', 'TRX'];
+export const TOKENS = ['BTC', 'ETH', 'TRX'];
 
-export type Token = 'BTC' | 'ETH' | 'USDC' | 'TRX';
+export type Token = 'BTC' | 'ETH' | 'TRX';
 
 export const PLATFORM_ADDRESSES = {
   // Mainnet addresses
